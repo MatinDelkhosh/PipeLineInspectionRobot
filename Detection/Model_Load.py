@@ -1,5 +1,5 @@
-import tensorflow.lite as tflite
-#import tensorflow.lite.Interpreter as tflite
+import tensorflow.lite as tflite # for windows
+#import tensorflow.lite.Interpreter as tflite #for raspberry
 import numpy as np
 from PIL import Image, ImageDraw
 
