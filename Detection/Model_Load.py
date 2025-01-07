@@ -1,5 +1,5 @@
 import tensorflow.lite as tflite # for windows
-#import tensorflow.lite.Interpreter as tflite #for raspberry
+#import tensorflow.lite.Interpreter as tflite #for raspberry pi
 import numpy as np
 from PIL import Image, ImageDraw
 
@@ -20,7 +20,7 @@ def draw_keypoints(image, keypoints, threshold=0.5):
             draw.ellipse([(x - 2, y - 2), (x + 2, y + 2)], fill='red')
     return image
 
-def main():
+def detect(image_path):
     # Load TFLite model and allocate tensors
     model_path = 'models/CenterNet_MobileNet_V2_Keypoints.tflite'  # Path to the TFLite model
     interpreter = tflite.Interpreter(model_path=model_path)
@@ -34,7 +34,7 @@ def main():
     input_shape = input_details[0]['shape'][1:3]
 
     # Load and preprocess the image
-    image_path = 'input_image.jpg'  # Replace with the path to your image
+    #image_path = 'input_image.jpg'
     image, input_data = preprocess_image(image_path, input_shape)
 
     # Set the tensor for input data
@@ -49,6 +49,3 @@ def main():
     # Visualize results
     result_image = draw_keypoints(image, keypoints)
     result_image.show()  # Displays the image with keypoints
-
-if __name__ == '__main__':
-    main()
