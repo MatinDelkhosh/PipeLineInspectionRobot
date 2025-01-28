@@ -30,11 +30,28 @@ def preprocess_image(image_path, input_shape):
     return image, input_data
 
 def draw_keypoints(image, keypoints, threshold=0.5):
+    """
+    Draw keypoints on the image. Keypoints are assumed to be in relative coordinates (0 to 1).
+    
+    Args:
+        image (PIL.Image): The image on which to draw the keypoints.
+        keypoints (np.ndarray): Array of keypoints in relative coordinates (x, y, confidence).
+        threshold (float): Confidence threshold for drawing a keypoint.
+    
+    Returns:
+        PIL.Image: The image with keypoints drawn.
+    """
     draw = ImageDraw.Draw(image)
+    width, height = image.size  # Get the dimensions of the image
+    
     for kp in keypoints:
-        if kp[2] > threshold:
-            x, y = kp[0], kp[1]
+        if kp[2] > threshold:  # Check if the confidence score is above the threshold
+            # Scale the relative coordinates to absolute coordinates
+            x = kp[0] * width
+            y = kp[1] * height
+            # Draw a small ellipse at the keypoint location
             draw.ellipse([(x - 2, y - 2), (x + 2, y + 2)], fill='red')
+    
     return image
 
 def detect(image_path):
@@ -67,9 +84,10 @@ def detect(image_path):
 
     # Extract keypoints from the output tensors
     keypoints = interpreter.get_tensor(output_details[0]['index'])[0]  # Adjust based on model's output format
+    print(keypoints)
 
     # Visualize results
     result_image = draw_keypoints(image, keypoints)
     result_image.show()  # Displays the image with keypoints
 
-detect('image2.jpg')
+detect('image1.jpg')
