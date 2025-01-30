@@ -7,10 +7,12 @@ from threading import Thread
 #import cv2
 
 # Define GPIO pins for motors and ultrasonic sensors
-MOTOR_LEFT_FORWARD = 23   #ENA
-MOTOR_LEFT_IN1 = 17  #IN1
-MOTOR_RIGHT_FORWARD = 24  #ENA
-MOTOR_RIGHT_IN1 = 27 #IN1
+MOTOR_LEFT_FORWARD = 23     #ENA
+MOTOR_LEFT_IN1 = 17         #IN1
+MOTOR_RIGHT_FORWARD = 24    #ENA
+MOTOR_RIGHT_IN1 = 27        #IN1
+MOTOR_RIGHT_IN2 = 17        #IN2
+MOTOR_LEFT_IN2 = 18         #IN2
 
 TRIG_LEFT = 5
 ECHO_LEFT = 6
