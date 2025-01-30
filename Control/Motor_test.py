@@ -18,20 +18,26 @@ pwm = GPIO.PWM(ENA, 1000)  # Frequency = 1kHz
 pwm.start(0)  # Start with 0% duty cycle
 
 try:
+    print('moving')
     # Move motor forward
     GPIO.output(IN1, GPIO.HIGH)
     GPIO.output(IN2, GPIO.LOW)
-    pwm.ChangeDutyCycle(50)  # Set speed to 50%
+    pwm.ChangeDutyCycle(80)  # Set speed to 50%
     sleep(5)
 
     # Stop motor
-    pwm.ChangeDutyCycle(0)
+    pwm.ChangeDutyCycle(90)
     sleep(2)
 
     # Move motor backward
     GPIO.output(IN1, GPIO.LOW)
     GPIO.output(IN2, GPIO.HIGH)
-    pwm.ChangeDutyCycle(75)  # Set speed to 75%
+    pwm.ChangeDutyCycle(60)  # Set speed to 75%
+    sleep(5)
+
+    GPIO.output(IN1, GPIO.LOW)
+    GPIO.output(IN2, GPIO.HIGH)
+    pwm.ChangeDutyCycle(100)  # Set speed to 75%
     sleep(5)
 
 finally:
