@@ -126,7 +126,7 @@ def control_motors(left_speed, right_speed):
 from IMU import read_imu
 
 def main():
-    #global x, y, trajectory
+    global x, y
     try:
         SENSITIVITY_THRESHOLD = 10  # Minimum difference to trigger motor adjustment
         TURN_FACTOR = 0.5  # Factor to adjust sharpness of turns
