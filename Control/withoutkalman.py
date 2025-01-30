@@ -10,7 +10,7 @@ from picamera2 import Picamera2
 from UT import measure_distance as read_distance
 from IMU import mpu_init
 from IMU import read_imu
-from Center import pipe_center
+from center import pipe_center
 
 
 # Define GPIO pins for motors and ultrasonic sensors
