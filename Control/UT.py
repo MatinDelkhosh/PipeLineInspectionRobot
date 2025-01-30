@@ -2,15 +2,15 @@ import RPi.GPIO as GPIO
 import time
 
 # Set GPIO mode
-#GPIO.setmode(GPIO.BCM)
+GPIO.setmode(GPIO.BCM)
 
 # Define GPIO pins
 TRIG = 5  # Trigger pin
 ECHO = 13  # Echo pin
 
 # Set up pins
-#GPIO.setup(TRIG, GPIO.OUT)
-#GPIO.setup(ECHO, GPIO.IN)
+GPIO.setup(TRIG, GPIO.OUT)
+GPIO.setup(ECHO, GPIO.IN)
 
 def measure_distance(trig,echo):
     # Ensure the trigger pin is low
