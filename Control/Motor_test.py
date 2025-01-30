@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 from time import sleep
+GPIO.cleanup()
 
 # Set pin numbering mode
 GPIO.setmode(GPIO.BCM)  # Use GPIO numbers instead of physical pin numbers

@@ -10,3 +10,5 @@ GPIO.output(27, GPIO.LOW)
 from time import sleep
 sleep(10)
 #GPIO.output(23, GPIO.HIGH) 
+
+GPIO.cleanup()
