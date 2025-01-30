@@ -2,7 +2,7 @@ import smbus
 import time
 
 # MPU-6050 Registers and Address
-MPU6050_ADDR = 0x68  # I2C address of the MPU-6050
+MPU6050_ADDR = 0x69  # I2C address of the MPU-6050
 PWR_MGMT_1 = 0x6B
 SMPLRT_DIV = 0x19
 CONFIG = 0x1A
