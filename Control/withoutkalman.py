@@ -4,7 +4,14 @@ import smbus
 import math
 #import matplotlib.pyplot as plt
 from threading import Thread
+from picamera2 import Picamera2
 #import cv2
+
+from UT import measure_distance as read_distance
+from IMU import mpu_init
+from IMU import read_imu
+from Center import pipe_center
+
 
 # Define GPIO pins for motors and ultrasonic sensors
 MOTOR_LEFT_FORWARD = 23     #ENA
@@ -41,11 +48,7 @@ motor_left_pwm.start(0)
 motor_right_pwm.start(0)
 '''
 # MPU6050 setup
-'''IMU_ADDRESS = 0x68
 bus = smbus.SMBus(1)
-bus.write_byte_data(IMU_ADDRESS, 0x6B, 0)'''
-bus = smbus.SMBus(1)  # Use I2C bus 1
-from IMU import mpu_init
 mpu_init()
 
 '''x, y = 0, 0  
@@ -80,25 +83,6 @@ def update_position(x, y, distance, angle):
         plt.draw()
         plt.pause(0.01)'''
 
-'''def read_distance(trig, echo):
-    """Measure distance using an ultrasonic sensor."""
-    GPIO.output(trig, True)
-    time.sleep(0.00001)
-    GPIO.output(trig, False)
-
-    while GPIO.input(echo) == 0:
-        start_time = time.time()
-
-    while GPIO.input(echo) == 1:
-        end_time = time.time()
-
-    duration = end_time - start_time
-    distance = (duration * 34300) / 2  # Speed of sound = 34300 cm/s
-    return distance'''
-
-from UT import measure_distance as read_distance
-
-
 def control_motors(left_speed, right_speed):
     """Control motor speeds."""
     if left_speed > 0:
@@ -115,16 +99,6 @@ def control_motors(left_speed, right_speed):
         GPIO.output(MOTOR_RIGHT_IN1, GPIO.LOW)
         motor_right_pwm.ChangeDutyCycle(0)
 
-'''def read_imu():
-    """Read IMU data (example using accelerometer)."""
-    accel_x = bus.read_byte_data(IMU_ADDRESS, 0x3B)
-    accel_y = bus.read_byte_data(IMU_ADDRESS, 0x3D)
-    accel_z = bus.read_byte_data(IMU_ADDRESS, 0x3F)
-    gyro_z = bus.read_byte_data(IMU_ADDRESS, 0x47)  # Example for Z-axis rotation
-    return accel_x, accel_y, accel_z, gyro_z'''
-
-from IMU import read_imu
-
 def main():
     #global x, y
     try:
@@ -136,15 +110,15 @@ def main():
         plot_thread.daemon = True
         plot_thread.start()'''
 
-
-        #cap = cv2.VideoCapture(0)
+        picam2 = Picamera2()
+        picam2.start()
 
         while True:
             # Read distances from ultrasonic sensors
             distance_left = read_distance(TRIG_LEFT, ECHO_LEFT)
             distance_right = read_distance(TRIG_RIGHT, ECHO_RIGHT)
-            #centerofpipe = pipe_center(cap)
-            #print(f'pipe center location: {centerofpipe}')
+            centerofpipe = pipe_center(picam2)
+            print(f'pipe center location: {centerofpipe}')
 
             # Calculate the difference between left and right distances
             distance_diff = distance_left - distance_right
