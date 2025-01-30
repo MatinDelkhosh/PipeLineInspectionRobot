@@ -6,8 +6,8 @@ ENCODER_A = 20  # Channel A
 ENCODER_B = 21  # Channel B
 
 # Setup GPIO
-GPIO.setmode(GPIO.BCM)
 GPIO.cleanup()
+GPIO.setmode(GPIO.BCM)
 GPIO.setup(ENCODER_A, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(ENCODER_B, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
