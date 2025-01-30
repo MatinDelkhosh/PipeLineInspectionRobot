@@ -23,21 +23,25 @@ try:
     GPIO.output(IN1, GPIO.HIGH)
     GPIO.output(IN2, GPIO.LOW)
     pwm.ChangeDutyCycle(80)  # Set speed to 50%
+    print(80)
     sleep(5)
 
     # Stop motor
     pwm.ChangeDutyCycle(90)
+    print(90)
     sleep(2)
 
     # Move motor backward
     GPIO.output(IN1, GPIO.LOW)
     GPIO.output(IN2, GPIO.HIGH)
-    pwm.ChangeDutyCycle(60)  # Set speed to 75%
+    pwm.ChangeDutyCycle(60)
+    print(60)
     sleep(5)
 
     GPIO.output(IN1, GPIO.LOW)
     GPIO.output(IN2, GPIO.HIGH)
     pwm.ChangeDutyCycle(100)  # Set speed to 75%
+    print(100)
     sleep(5)
 
 finally:
