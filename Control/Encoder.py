@@ -2,8 +2,8 @@ import RPi.GPIO as GPIO
 from time import sleep
 
 # Define encoder pins
-ENCODER_A = 25  # Channel A
-ENCODER_B = 8  # Channel B
+ENCODER_A = 20  # Channel A
+ENCODER_B = 21  # Channel B
 
 # Setup GPIO
 GPIO.setmode(GPIO.BCM)
