@@ -4,7 +4,7 @@ import smbus
 import math
 #import matplotlib.pyplot as plt
 from threading import Thread
-import cv2
+#import cv2
 
 # Define GPIO pins for motors and ultrasonic sensors
 MOTOR_LEFT_FORWARD = 17   #ENA
@@ -130,14 +130,14 @@ def main():
         plot_thread.start()'''
 
 
-        cap = cv2.VideoCapture(0)
+        #cap = cv2.VideoCapture(0)
 
         while True:
             # Read distances from ultrasonic sensors
             distance_left = read_distance(TRIG_LEFT, ECHO_LEFT)
             distance_right = read_distance(TRIG_RIGHT, ECHO_RIGHT)
-            centerofpipe = pipe_center(cap)
-            print(f'pipe center location: {centerofpipe}')
+            #centerofpipe = pipe_center(cap)
+            #print(f'pipe center location: {centerofpipe}')
 
             # Calculate the difference between left and right distances
             distance_diff = distance_left - distance_right
@@ -180,8 +180,8 @@ def main():
         print("Stopping robot...")
         motor_left_pwm.stop()
         motor_right_pwm.stop()
-        cap.release()
-        cv2.destroyAllWindows()
+        #cap.release()
+        #cv2.destroyAllWindows()
         GPIO.cleanup()
 
 if __name__ == "__main__":
