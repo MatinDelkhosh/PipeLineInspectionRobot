@@ -2,32 +2,32 @@ import RPi.GPIO as GPIO
 import time
 
 # Set GPIO mode
-GPIO.setmode(GPIO.BCM)
+#GPIO.setmode(GPIO.BCM)
 
 # Define GPIO pins
 TRIG = 23  # Trigger pin
 ECHO = 24  # Echo pin
 
 # Set up pins
-GPIO.setup(TRIG, GPIO.OUT)
-GPIO.setup(ECHO, GPIO.IN)
+#GPIO.setup(TRIG, GPIO.OUT)
+#GPIO.setup(ECHO, GPIO.IN)
 
-def measure_distance():
+def measure_distance(trig,echo):
     # Ensure the trigger pin is low
-    GPIO.output(TRIG, False)
+    GPIO.output(trig, False)
     time.sleep(0.2)
 
     # Send a 10µs pulse to trigger pin
-    GPIO.output(TRIG, True)
+    GPIO.output(trig, True)
     time.sleep(0.00001)
-    GPIO.output(TRIG, False)
+    GPIO.output(trig, False)
 
     # Wait for the echo pin to go high
-    while GPIO.input(ECHO) == 0:
+    while GPIO.input(echo) == 0:
         pulse_start = time.time()
 
     # Wait for the echo pin to go low
-    while GPIO.input(ECHO) == 1:
+    while GPIO.input(echo) == 1:
         pulse_end = time.time()
 
     # Calculate the distance

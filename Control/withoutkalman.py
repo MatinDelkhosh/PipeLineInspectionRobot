@@ -4,12 +4,14 @@ import smbus
 import math
 import matplotlib.pyplot as plt
 from threading import Thread
+import cv2
 
 # Define GPIO pins for motors and ultrasonic sensors
-MOTOR_LEFT_FORWARD = 17
-MOTOR_LEFT_BACKWARD = 27
-MOTOR_RIGHT_FORWARD = 22
-MOTOR_RIGHT_BACKWARD = 23
+MOTOR_LEFT_FORWARD = 17   #ENA
+MOTOR_LEFT_BACKWARD = 27  #ENA
+MOTOR_RIGHT_FORWARD = 22  #IN1
+MOTOR_RIGHT_BACKWARD = 23 
+
 TRIG_LEFT = 5
 ECHO_LEFT = 6
 TRIG_RIGHT = 13
@@ -17,10 +19,12 @@ ECHO_RIGHT = 19
 
 # Initialize GPIO pins
 GPIO.setmode(GPIO.BCM)
+
 GPIO.setup(MOTOR_LEFT_FORWARD, GPIO.OUT)
 GPIO.setup(MOTOR_LEFT_BACKWARD, GPIO.OUT)
 GPIO.setup(MOTOR_RIGHT_FORWARD, GPIO.OUT)
 GPIO.setup(MOTOR_RIGHT_BACKWARD, GPIO.OUT)
+
 GPIO.setup(TRIG_LEFT, GPIO.OUT)
 GPIO.setup(ECHO_LEFT, GPIO.IN)
 GPIO.setup(TRIG_RIGHT, GPIO.OUT)
@@ -69,7 +73,7 @@ def update_plot():
         plt.draw()
         plt.pause(0.01)
 
-def read_distance(trig, echo):
+'''def read_distance(trig, echo):
     """Measure distance using an ultrasonic sensor."""
     GPIO.output(trig, True)
     time.sleep(0.00001)
@@ -83,7 +87,10 @@ def read_distance(trig, echo):
 
     duration = end_time - start_time
     distance = (duration * 34300) / 2  # Speed of sound = 34300 cm/s
-    return distance
+    return distance'''
+
+from UT import measure_distance as read_distance
+from Center import pipe_center
 
 def control_motors(left_speed, right_speed):
     """Control motor speeds."""
@@ -121,11 +128,14 @@ def main():
         plot_thread = Thread(target=update_plot)
         plot_thread.daemon = True
         plot_thread.start()
+        cap = cv2.VideoCapture(0)
 
         while True:
             # Read distances from ultrasonic sensors
             distance_left = read_distance(TRIG_LEFT, ECHO_LEFT)
             distance_right = read_distance(TRIG_RIGHT, ECHO_RIGHT)
+            centerofpipe = pipe_center(cap)
+            print(f'pipe center location: {centerofpipe}')
 
             # Calculate the difference between left and right distances
             distance_diff = distance_left - distance_right
@@ -168,6 +178,8 @@ def main():
         print("Stopping robot...")
         motor_left_pwm.stop()
         motor_right_pwm.stop()
+        cap.release()
+        cv2.destroyAllWindows()
         GPIO.cleanup()
 
 if __name__ == "__main__":

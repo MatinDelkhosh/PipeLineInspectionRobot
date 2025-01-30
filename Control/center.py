@@ -1,27 +1,26 @@
 import cv2
 import numpy as np
-import os
-from google.colab.patches import cv2_imshow
 
 def detect_strongest_circle(frame):
+    # Convert to grayscale
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     
-    # افزایش کنتراست تصویر
+    # Enhance contrast
     gray = cv2.equalizeHist(gray)
     
-    # بلور برای کاهش نویز
+    # Apply Gaussian Blur to reduce noise
     blurred = cv2.GaussianBlur(gray, (9, 9), 2)
     
-    # تنظیمات HoughCircles
+    # Detect circles using HoughCircles
     circles = cv2.HoughCircles(
         blurred, 
         cv2.HOUGH_GRADIENT, 
-        dp=1.5,  # افزایش دقت
-        minDist=30,  # فاصله حداقل بین دایره‌ها
-        param1=80,  # آستانه برای تشخیص لبه
-        param2=30,  # آستانه تصمیم‌گیری
-        minRadius=20,  # حداقل شعاع
-        maxRadius=200  # حداکثر شعاع
+        dp=1.5, 
+        minDist=30, 
+        param1=80, 
+        param2=30, 
+        minRadius=20, 
+        maxRadius=200
     )
     
     if circles is not None:
@@ -29,35 +28,50 @@ def detect_strongest_circle(frame):
         strongest_circle = circles[0]
         x, y, r = strongest_circle
         
-        cv2.circle(frame, (x, y), r, (0, 255, 0), 4)
-        cv2.circle(frame, (x, y), 2, (0, 0, 255), 3)
-        return (x, y), frame
+        # Get frame dimensions
+        height, width = frame.shape[:2]
+        center_x, center_y = width // 2, height // 2
+        
+        # Calculate position relative to center
+        relative_x = x - center_x
+        relative_y = y - center_y
+
+        # Draw the detected circle
+        #cv2.circle(frame, (x, y), r, (0, 255, 0), 4)
+        #cv2.circle(frame, (x, y), 2, (0, 0, 255), 3)
+
+        return (relative_x, relative_y), frame
 
     return None, frame
 
-def main(image_folder):
-    images = sorted([os.path.join(image_folder, f) for f in os.listdir(image_folder) if f.endswith(('.png', '.jpg', '.jpeg'))])
-    print("لیست تصاویر موجود:")
-    print(images)
 
-    for image_path in images:
-        frame = cv2.imread(image_path)
-        
-        if frame is None:
-            print(f"خطا در باز کردن تصویر {image_path}")
-            continue
+cap = cv2.VideoCapture(0)
 
-        print(f"در حال پردازش تصویر: {image_path}")
+if not cap.isOpened():
+    print("Error: Could not open camera.")
 
-        center, output_frame = detect_strongest_circle(frame)
+def pipe_center(cap):
+    ret, frame = cap.read()
+    if not ret:
+        print("Error: Failed to capture frame.")
+        return (0,0)
 
-        if center:
-            print(f"تصویر {image_path}: قوی‌ترین دایره در موقعیت {center} شناسایی شد.")
-        else:
-            print(f"تصویر {image_path}: هیچ دایره‌ای شناسایی نشد.")
+    # Detect strongest circle and calculate relative position
+    center_offset, output_frame = detect_strongest_circle(frame)
 
-        cv2_imshow(output_frame)
+    if center_offset:
+        return center_offset
+    else:
+        print("Error: Failed to recognize center")
+        return (0,0)
+'''
+    # Show the processed frame
+    cv2.imshow("Circle Detection", output_frame)
 
-if __name__ == "__main__":
-    image_folder = "content"
-    main(image_folder)
+    # Exit when 'q' is pressed
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        return (0,0)
+'''
+# Release resources
+cap.release()
+cv2.destroyAllWindows()
