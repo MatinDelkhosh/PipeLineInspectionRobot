@@ -148,6 +148,7 @@ def main():
 
             # Calculate the difference between left and right distances
             distance_diff = distance_left - distance_right
+            print(distance_diff)
 
             # Determine motor speeds based on distance difference
             if abs(distance_diff) < SENSITIVITY_THRESHOLD:
