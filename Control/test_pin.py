@@ -7,7 +7,8 @@ GPIO.setup(23, GPIO.OUT) #ENA
 
 GPIO.output(17, GPIO.HIGH)
 GPIO.output(27, GPIO.LOW)
-GPIO.output(23, GPIO.HIGH)
+pwm = GPIO.PWM(23, 1000)  # Frequency = 1kHz
+pwm.start(100)  # Start with 0% duty cycle
 from time import sleep
 sleep(10)
 
