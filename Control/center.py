@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from picamera2 import Picamera2
+#picamera
 
 def detect_strongest_circle(frame):
     # Convert to grayscale
@@ -78,6 +79,6 @@ def pipe_center():
         return (0,0)
 '''
 # Release resources
-pipe_center()
+print('center offset: ',pipe_center())
 '''cap.release()
 cv2.destroyAllWindows()'''
