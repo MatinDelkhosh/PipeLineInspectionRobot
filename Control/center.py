@@ -70,6 +70,6 @@ def pipe_center(picam2):
         return (0,0)
 '''
 # Release resources
-#print('center offset: ',pipe_center())
+print('center offset: ',pipe_center(picam2))
 '''cap.release()
 cv2.destroyAllWindows()'''
