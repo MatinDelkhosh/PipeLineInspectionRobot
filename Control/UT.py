@@ -5,8 +5,8 @@ import time
 #GPIO.setmode(GPIO.BCM)
 
 # Define GPIO pins
-'''TRIG = 23  # Trigger pin
-ECHO = 24  # Echo pin'''
+TRIG = 5  # Trigger pin
+ECHO = 13  # Echo pin
 
 # Set up pins
 #GPIO.setup(TRIG, GPIO.OUT)
@@ -37,7 +37,7 @@ def measure_distance(trig,echo):
 
     return distance
 
-'''try:
+try:
     while True:
         dist = measure_distance(TRIG, ECHO)
         print(f"Distance: {dist} cm")
@@ -46,4 +46,3 @@ def measure_distance(trig,echo):
 except KeyboardInterrupt:
     print("Measurement stopped by user")
     GPIO.cleanup()
-'''
