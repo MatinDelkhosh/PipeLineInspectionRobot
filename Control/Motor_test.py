@@ -7,7 +7,7 @@ GPIO.setmode(GPIO.BCM)  # Use GPIO numbers instead of physical pin numbers
 # Pin setup
 IN1 = 17  # GPIO pin connected to IN1
 IN2 = 27  # GPIO pin connected to IN2
-ENA = 22  # GPIO pin connected to ENA (PWM)
+ENA = 23  # GPIO pin connected to ENA (PWM)
 
 GPIO.setup(IN1, GPIO.OUT)
 GPIO.setup(IN2, GPIO.OUT)
