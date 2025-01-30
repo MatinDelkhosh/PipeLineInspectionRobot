@@ -44,8 +44,9 @@ def detect_strongest_circle(frame):
 
     return None, frame
 
-
+print('hey')
 cap = cv2.VideoCapture(0)
+print('hey2')
 
 if not cap.isOpened():
     print("Error: Could not open camera.")
@@ -73,5 +74,6 @@ def pipe_center(cap):
         return (0,0)
 '''
 # Release resources
+pipe_center(cap)
 cap.release()
 cv2.destroyAllWindows()
