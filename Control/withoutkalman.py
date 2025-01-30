@@ -2,15 +2,15 @@ import RPi.GPIO as GPIO
 import time
 import smbus
 import math
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from threading import Thread
 import cv2
 
 # Define GPIO pins for motors and ultrasonic sensors
 MOTOR_LEFT_FORWARD = 17   #ENA
-MOTOR_LEFT_BACKWARD = 27  #ENA
-MOTOR_RIGHT_FORWARD = 22  #IN1
-MOTOR_RIGHT_BACKWARD = 23 
+MOTOR_LEFT_IN1 = 27  #IN1
+MOTOR_RIGHT_FORWARD = 22  #ENA
+MOTOR_RIGHT_IN1 = 23 #IN1
 
 TRIG_LEFT = 5
 ECHO_LEFT = 6
@@ -21,9 +21,9 @@ ECHO_RIGHT = 19
 GPIO.setmode(GPIO.BCM)
 
 GPIO.setup(MOTOR_LEFT_FORWARD, GPIO.OUT)
-GPIO.setup(MOTOR_LEFT_BACKWARD, GPIO.OUT)
+GPIO.setup(MOTOR_LEFT_IN1, GPIO.OUT)
 GPIO.setup(MOTOR_RIGHT_FORWARD, GPIO.OUT)
-GPIO.setup(MOTOR_RIGHT_BACKWARD, GPIO.OUT)
+GPIO.setup(MOTOR_RIGHT_IN1, GPIO.OUT)
 
 GPIO.setup(TRIG_LEFT, GPIO.OUT)
 GPIO.setup(ECHO_LEFT, GPIO.IN)
@@ -41,14 +41,14 @@ IMU_ADDRESS = 0x68
 bus = smbus.SMBus(1)
 bus.write_byte_data(IMU_ADDRESS, 0x6B, 0)
 
-x, y = 0, 0  
-trajectory = [(x, y)]  
+'''x, y = 0, 0  
+trajectory = [(x, y)]  '''
 wheel_diameter = 6.0  #  cm
 encoder_resolution = 360  # ppr
 wheel_circumference = math.pi * wheel_diameter
 
 # Realtime plotting setup
-plt.ion()
+'''plt.ion()
 fig, ax = plt.subplots()
 line, = ax.plot([], [], marker="o")
 ax.set_xlim(-100, 100)
@@ -56,7 +56,7 @@ ax.set_ylim(-100, 100)
 ax.set_title("2D Trajectory Mapping")
 ax.set_xlabel("X Position (cm)")
 ax.set_ylabel("Y Position (cm)")
-ax.grid()
+ax.grid()'''
 
 def calculate_distance(encoder_pulses):
     return (encoder_pulses / encoder_resolution) * wheel_circumference
@@ -66,12 +66,12 @@ def update_position(x, y, distance, angle):
     y_new = y + distance * math.sin(math.radians(angle))
     return x_new, y_new
 
-def update_plot():
+'''def update_plot():
     while True:
         x_coords, y_coords = zip(*trajectory)
         line.set_data(x_coords, y_coords)
         plt.draw()
-        plt.pause(0.01)
+        plt.pause(0.01)'''
 
 '''def read_distance(trig, echo):
     """Measure distance using an ultrasonic sensor."""
@@ -95,18 +95,18 @@ from Center import pipe_center
 def control_motors(left_speed, right_speed):
     """Control motor speeds."""
     if left_speed > 0:
-        GPIO.output(MOTOR_LEFT_BACKWARD, False)
+        GPIO.output(MOTOR_LEFT_IN1, GPIO.HIGH)
         motor_left_pwm.ChangeDutyCycle(left_speed)
     else:
-        GPIO.output(MOTOR_LEFT_BACKWARD, True)
-        motor_left_pwm.ChangeDutyCycle(-left_speed)
+        GPIO.output(MOTOR_LEFT_IN1, GPIO.LOW)
+        motor_left_pwm.ChangeDutyCycle(0)
 
     if right_speed > 0:
-        GPIO.output(MOTOR_RIGHT_BACKWARD, False)
+        GPIO.output(MOTOR_RIGHT_IN1, GPIO.HIGH)
         motor_right_pwm.ChangeDutyCycle(right_speed)
     else:
-        GPIO.output(MOTOR_RIGHT_BACKWARD, True)
-        motor_right_pwm.ChangeDutyCycle(-right_speed)
+        GPIO.output(MOTOR_RIGHT_IN1, GPIO.LOW)
+        motor_right_pwm.ChangeDutyCycle(0)
 
 '''def read_imu():
     """Read IMU data (example using accelerometer)."""
@@ -119,15 +119,17 @@ def control_motors(left_speed, right_speed):
 from IMU import read_imu
 
 def main():
-    global x, y, trajectory
+    #global x, y, trajectory
     try:
         SENSITIVITY_THRESHOLD = 10  # Minimum difference to trigger motor adjustment
         TURN_FACTOR = 0.5  # Factor to adjust sharpness of turns
 
         # Start the realtime plotting thread
-        plot_thread = Thread(target=update_plot)
+        '''plot_thread = Thread(target=update_plot)
         plot_thread.daemon = True
-        plot_thread.start()
+        plot_thread.start()'''
+
+
         cap = cv2.VideoCapture(0)
 
         while True:
@@ -170,7 +172,7 @@ def main():
             x, y = update_position(x, y, distance, angle)
 
             # Save trajectory
-            trajectory.append((x, y))
+            #trajectory.append((x, y))
 
             time.sleep(0.1)
 
