@@ -35,6 +35,8 @@ def measure_distance(trig,echo):
     distance = pulse_duration * 17150  # Speed of sound: 343m/s or 17150cm/s
     distance = round(distance, 2)
 
+    if distance > 800: distance = 2
+
     return distance
 
 '''try:
