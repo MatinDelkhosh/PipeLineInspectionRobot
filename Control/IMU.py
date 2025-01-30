@@ -1,5 +1,4 @@
 import smbus
-import time
 
 # MPU-6050 Registers and Address
 MPU6050_ADDR = 0x69  # I2C address of the MPU-6050
@@ -40,9 +39,6 @@ def read_raw_data(addr):
 bus = smbus.SMBus(1)  # Use I2C bus 1
 mpu_init()
 
-print("Reading data from MPU-6050")
-
-
 def read_imu():
     try:
             # Read Accelerometer data
@@ -68,9 +64,7 @@ def read_imu():
             print(f"Gyroscope: X={gx:.2f}°/s, Y={gy:.2f}°/s, Z={gz:.2f}°/s")
             print("")
 
-            time.sleep(1)
+            return ax, ay, az, gz
 
     except KeyboardInterrupt:
         print("Measurement stopped by user")
-
-    return ax, ay, az, gz

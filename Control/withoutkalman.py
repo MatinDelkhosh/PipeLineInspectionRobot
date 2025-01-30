@@ -97,7 +97,7 @@ def update_position(x, y, distance, angle):
     return distance'''
 
 from UT import measure_distance as read_distance
-from Center import pipe_center
+
 
 def control_motors(left_speed, right_speed):
     """Control motor speeds."""
