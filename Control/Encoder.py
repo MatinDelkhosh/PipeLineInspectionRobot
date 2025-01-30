@@ -24,7 +24,7 @@ def encoder_callback(channel):
     print(f"Encoder Count: {encoder_count}")
 
 # Attach interrupt to channel A
-GPIO.add_event_detect(ENCODER_A, GPIO.FALLING, callback=encoder_callback)
+GPIO.add_event_detect(ENCODER_A, GPIO.RISING, callback=encoder_callback)
 
 try:
     print("Reading encoder...")
