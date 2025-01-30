@@ -126,7 +126,7 @@ def control_motors(left_speed, right_speed):
 from IMU import read_imu
 
 def main():
-    global x, y
+    #global x, y
     try:
         SENSITIVITY_THRESHOLD = 10  # Minimum difference to trigger motor adjustment
         TURN_FACTOR = 0.5  # Factor to adjust sharpness of turns
@@ -176,7 +176,7 @@ def main():
 
             # Update position
             angle = gyro_z  # Example for using gyro for orientation
-            x, y = update_position(x, y, distance, angle)
+            #x, y = update_position(x, y, distance, angle)
 
             # Save trajectory
             #trajectory.append((x, y))
@@ -185,8 +185,8 @@ def main():
 
     except KeyboardInterrupt:
         print("Stopping robot...")
-        motor_left_pwm.stop()
-        motor_right_pwm.stop()
+        '''motor_left_pwm.stop()
+        motor_right_pwm.stop()'''
         #cap.release()
         #cv2.destroyAllWindows()
         GPIO.cleanup()
