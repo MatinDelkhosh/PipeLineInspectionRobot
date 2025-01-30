@@ -34,12 +34,12 @@ GPIO.setup(ECHO_LEFT, GPIO.IN)
 GPIO.setup(TRIG_RIGHT, GPIO.OUT)
 GPIO.setup(ECHO_RIGHT, GPIO.IN)
 
-# PWM setup
+'''# PWM setup
 motor_left_pwm = GPIO.PWM(MOTOR_LEFT_FORWARD, 100)
 motor_right_pwm = GPIO.PWM(MOTOR_RIGHT_FORWARD, 100)
 motor_left_pwm.start(0)
 motor_right_pwm.start(0)
-
+'''
 # MPU6050 setup
 '''IMU_ADDRESS = 0x68
 bus = smbus.SMBus(1)
