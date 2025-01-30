@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from picamera2 import Picamera2
 
 def detect_strongest_circle(frame):
     # Convert to grayscale
@@ -44,17 +45,21 @@ def detect_strongest_circle(frame):
 
     return None, frame
 
-cap = cv2.VideoCapture("/dev/video0", cv2.CAP_V4L2)
-cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"YUYV"))
-
+'''cap = cv2.VideoCapture("/dev/video0", cv2.CAP_V4L2)
+cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"YUYV"))'''
+'''
 if not cap.isOpened():
-    print("Error: Could not open camera.")
+    print("Error: Could not open camera.")'''
 
-def pipe_center(cap):
-    ret, frame = cap.read()
-    if not ret:
+# Initialize Picamera2
+picam2 = Picamera2()
+picam2.start()
+
+def pipe_center():
+    frame = picam2.capture_array()
+    '''if not ret:
         print("Error: Failed to capture frame.")
-        return (0,0)
+        return (0,0)'''
 
     # Detect strongest circle and calculate relative position
     center_offset, output_frame = detect_strongest_circle(frame)
@@ -73,6 +78,6 @@ def pipe_center(cap):
         return (0,0)
 '''
 # Release resources
-pipe_center(cap)
-cap.release()
-cv2.destroyAllWindows()
+pipe_center()
+'''cap.release()
+cv2.destroyAllWindows()'''
