@@ -44,7 +44,8 @@ def detect_strongest_circle(frame):
 
     return None, frame
 
-cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
+cap = cv2.VideoCapture("/dev/video0", cv2.CAP_V4L2)
+cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"YUYV"))
 
 if not cap.isOpened():
     print("Error: Could not open camera.")
