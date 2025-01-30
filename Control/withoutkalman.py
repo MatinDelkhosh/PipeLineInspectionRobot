@@ -39,9 +39,12 @@ motor_left_pwm.start(0)
 motor_right_pwm.start(0)
 
 # MPU6050 setup
-IMU_ADDRESS = 0x68
+'''IMU_ADDRESS = 0x68
 bus = smbus.SMBus(1)
-bus.write_byte_data(IMU_ADDRESS, 0x6B, 0)
+bus.write_byte_data(IMU_ADDRESS, 0x6B, 0)'''
+bus = smbus.SMBus(1)  # Use I2C bus 1
+from IMU import mpu_init
+mpu_init()
 
 '''x, y = 0, 0  
 trajectory = [(x, y)]  '''
