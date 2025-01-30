@@ -42,32 +42,35 @@ mpu_init()
 
 print("Reading data from MPU-6050")
 
-try:
-    while True:
-        # Read Accelerometer data
-        acc_x = read_raw_data(ACCEL_XOUT_H)
-        acc_y = read_raw_data(ACCEL_XOUT_H + 2)
-        acc_z = read_raw_data(ACCEL_XOUT_H + 4)
 
-        # Read Gyroscope data
-        gyro_x = read_raw_data(GYRO_XOUT_H)
-        gyro_y = read_raw_data(GYRO_XOUT_H + 2)
-        gyro_z = read_raw_data(GYRO_XOUT_H + 4)
+def read_imu():
+    try:
+            # Read Accelerometer data
+            acc_x = read_raw_data(ACCEL_XOUT_H)
+            acc_y = read_raw_data(ACCEL_XOUT_H + 2)
+            acc_z = read_raw_data(ACCEL_XOUT_H + 4)
 
-        # Convert raw data to proper units
-        ax = acc_x / 16384.0  # Accelerometer sensitivity scale factor
-        ay = acc_y / 16384.0
-        az = acc_z / 16384.0
+            # Read Gyroscope data
+            gyro_x = read_raw_data(GYRO_XOUT_H)
+            gyro_y = read_raw_data(GYRO_XOUT_H + 2)
+            gyro_z = read_raw_data(GYRO_XOUT_H + 4)
 
-        gx = gyro_x / 131.0  # Gyroscope sensitivity scale factor
-        gy = gyro_y / 131.0
-        gz = gyro_z / 131.0
+            # Convert raw data to proper units
+            ax = acc_x / 16384.0  # Accelerometer sensitivity scale factor
+            ay = acc_y / 16384.0
+            az = acc_z / 16384.0
 
-        print(f"Accelerometer: X={ax:.2f}g, Y={ay:.2f}g, Z={az:.2f}g")
-        print(f"Gyroscope: X={gx:.2f}°/s, Y={gy:.2f}°/s, Z={gz:.2f}°/s")
-        print("")
+            gx = gyro_x / 131.0  # Gyroscope sensitivity scale factor
+            gy = gyro_y / 131.0
+            gz = gyro_z / 131.0
 
-        time.sleep(1)
+            print(f"Accelerometer: X={ax:.2f}g, Y={ay:.2f}g, Z={az:.2f}g")
+            print(f"Gyroscope: X={gx:.2f}°/s, Y={gy:.2f}°/s, Z={gz:.2f}°/s")
+            print("")
 
-except KeyboardInterrupt:
-    print("Measurement stopped by user")
+            time.sleep(1)
+
+    except KeyboardInterrupt:
+        print("Measurement stopped by user")
+
+    return ax, ay, az, gz
