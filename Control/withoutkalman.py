@@ -151,7 +151,7 @@ def main():
             accel_x = imu_data[0]
             accel_y = imu_data[1]
             gyro_z = imu_data[3]
-            encoder_pulses = 20
+            encoder_pulses = 400
 
             # Calculate distance from encoder
             distance = calculate_distance(encoder_pulses)
