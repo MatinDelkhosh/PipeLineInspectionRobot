@@ -37,12 +37,13 @@ def measure_distance(trig,echo):
 
     return distance
 
-try:
+'''try:
     while True:
-        dist = measure_distance()
+        dist = measure_distance(TRIG, ECHO)
         print(f"Distance: {dist} cm")
         time.sleep(1)  # Wait for 1 second before next measurement
 
 except KeyboardInterrupt:
     print("Measurement stopped by user")
     GPIO.cleanup()
+'''

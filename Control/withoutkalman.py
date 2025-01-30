@@ -160,7 +160,7 @@ def main():
                     left_speed = 60 - adjustment
                     right_speed = 60 + adjustment
 
-            control_motors(left_speed, right_speed)
+            #control_motors(left_speed, right_speed)
 
             # Read IMU and encoder data
             imu_data = read_imu()
