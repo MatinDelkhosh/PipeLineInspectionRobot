@@ -110,15 +110,22 @@ def main():
         plot_thread.daemon = True
         plot_thread.start()'''
 
-        picam2 = Picamera2()
-        picam2.start()
+        try:
+            picam2 = Picamera2()
+            picam2.start()
+            cam = True
+        except:
+            cam = False
 
         while True:
             # Read distances from ultrasonic sensors
             distance_left = read_distance(TRIG_LEFT, ECHO_LEFT)
             distance_right = read_distance(TRIG_RIGHT, ECHO_RIGHT)
-            centerofpipe = pipe_center(picam2)
-            print(f'pipe center location: {centerofpipe}')
+            if cam:
+                centerofpipe = pipe_center(picam2)
+                print(f'pipe center location: {centerofpipe}')
+            else:
+                print('camera fail')
 
             # Calculate the difference between left and right distances
             distance_diff = distance_left - distance_right
