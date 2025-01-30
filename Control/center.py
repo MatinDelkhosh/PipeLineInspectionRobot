@@ -47,8 +47,8 @@ def detect_strongest_circle(frame):
     return None, frame
 
 # Initialize Picamera2
-picam2 = Picamera2()
-picam2.start()
+#picam2 = Picamera2()
+#picam2.start()
 
 def pipe_center(picam2):
     frame = picam2.capture_array()
@@ -70,6 +70,6 @@ def pipe_center(picam2):
         return (0,0)
 '''
 # Release resources
-print('center offset: ',pipe_center(picam2))
+#print('center offset: ',pipe_center(picam2))
 '''cap.release()
 cv2.destroyAllWindows()'''
