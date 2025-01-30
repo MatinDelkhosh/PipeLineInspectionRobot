@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 
-# Set GPIO mode
+'''# Set GPIO mode
 GPIO.setmode(GPIO.BCM)
 
 # Define GPIO pins
@@ -10,7 +10,7 @@ ECHO = 13  # Echo pin
 
 # Set up pins
 GPIO.setup(TRIG, GPIO.OUT)
-GPIO.setup(ECHO, GPIO.IN)
+GPIO.setup(ECHO, GPIO.IN)'''
 
 def measure_distance(trig,echo):
     # Ensure the trigger pin is low
@@ -37,7 +37,7 @@ def measure_distance(trig,echo):
 
     return distance
 
-try:
+'''try:
     while True:
         dist = measure_distance(TRIG, ECHO)
         print(f"Distance: {dist} cm")
@@ -45,4 +45,4 @@ try:
 
 except KeyboardInterrupt:
     print("Measurement stopped by user")
-    GPIO.cleanup()
+    GPIO.cleanup()'''
