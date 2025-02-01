@@ -21,13 +21,15 @@ def measure_distance(trig,echo):
     GPIO.output(trig, True)
     time.sleep(0.00001)
     GPIO.output(trig, False)
-
+    print('hey dist')
     # Wait for the echo pin to go high
     while GPIO.input(echo) == 0:
+        print('hey1')
         pulse_start = time.time()
 
     # Wait for the echo pin to go low
     while GPIO.input(echo) == 1:
+        print('hey2')
         pulse_end = time.time()
 
     # Calculate the distance
