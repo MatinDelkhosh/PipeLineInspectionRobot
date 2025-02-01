@@ -111,8 +111,10 @@ def main():
         plot_thread.start()'''
 
         try:
+            print('hey camera')
             picam2 = Picamera2()
             picam2.start()
+            print('hey camera2')
             cam = True
         except:
             cam = False
