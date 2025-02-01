@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from picamera2 import Picamera2
+#from picamera2 import Picamera2
 #picamera
 
 def detect_strongest_circle(frame):
