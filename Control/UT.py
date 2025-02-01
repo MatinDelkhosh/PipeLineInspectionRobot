@@ -36,7 +36,7 @@ def measure_distance(trig,echo):
     distance = round(distance, 2)
 
     if distance > 800: distance = 2
-
+    print(f'distance: {distance}')
     return distance
 
 '''try:

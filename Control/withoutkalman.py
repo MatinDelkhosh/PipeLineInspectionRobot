@@ -21,10 +21,10 @@ MOTOR_RIGHT_IN1 = 27        #IN1
 MOTOR_RIGHT_IN2 = 17        #IN2
 MOTOR_LEFT_IN2 = 18         #IN2
 
-TRIG_LEFT = 5
-ECHO_LEFT = 13
-TRIG_RIGHT = 6
-ECHO_RIGHT = 19
+TRIG_LEFT = 6
+ECHO_LEFT = 19
+TRIG_RIGHT = 5
+ECHO_RIGHT = 13
 
 # Initialize GPIO pins
 GPIO.setmode(GPIO.BCM)
@@ -111,10 +111,8 @@ def main():
         plot_thread.start()'''
 
         try:
-            print('hey camera')
             picam2 = Picamera2()
             picam2.start()
-            print('hey camera2')
             cam = True
         except:
             cam = False
@@ -123,6 +121,7 @@ def main():
             # Read distances from ultrasonic sensors
             distance_left = read_distance(TRIG_LEFT, ECHO_LEFT)
             distance_right = read_distance(TRIG_RIGHT, ECHO_RIGHT)
+            print('distance read')
             if cam:
                 centerofpipe = pipe_center(picam2)
                 print(f'pipe center location: {centerofpipe}')
