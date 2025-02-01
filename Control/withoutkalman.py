@@ -48,8 +48,8 @@ motor_left_pwm.start(0)
 motor_right_pwm.start(0)
 '''
 # MPU6050 setup
-bus = smbus.SMBus(1)
-mpu_init()
+#bus = smbus.SMBus(1)
+#mpu_init()
 
 '''x, y = 0, 0  
 trajectory = [(x, y)]  '''
@@ -152,6 +152,7 @@ def main():
             accel_y = imu_data[1]
             gyro_z = imu_data[3]
             encoder_pulses = 400
+            print("Sensor Read!!")
 
             # Calculate distance from encoder
             distance = calculate_distance(encoder_pulses)
