@@ -5,7 +5,7 @@ import struct
 
 # Socket setup
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host_ip = '192.168.171.170'  # Replace with your PC's IP address
+host_ip = '192.168.171.250'  # Replace with your PC's IP address
 port = 9999
 server_socket.bind((host_ip, port))
 server_socket.listen(5)

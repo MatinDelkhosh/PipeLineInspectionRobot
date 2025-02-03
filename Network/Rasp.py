@@ -11,7 +11,7 @@ picam2.start()
 
 # Socket setup
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host_ip = '192.168.171.170'  # Replace with your PC's IP address
+host_ip = '192.168.171.250'  # Replace with your PC's IP address
 port = 9999
 client_socket.connect((host_ip, port))
 
