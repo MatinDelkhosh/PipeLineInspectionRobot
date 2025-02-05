@@ -2,6 +2,7 @@ import RPi.GPIO as GPIO
 from time import sleep
 from picamera2 import Picamera2
 import cv2
+import numpy as np
 
 # Set pin numbering mode
 GPIO.setmode(GPIO.BCM)  # Use GPIO numbers instead of physical pin numbers
