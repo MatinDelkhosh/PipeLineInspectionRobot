@@ -156,7 +156,6 @@ def measure_distance(trig, echo):
     GPIO.output(trig, False)
     # Wait for the echo pin to go high
     while GPIO.input(echo) == 0:
-        print('fuck4')
         pulse_start = time.time()
 
     # Wait for the echo pin to go low
@@ -273,7 +272,7 @@ try:
         # frame_normalized = frame_resized.astype(np.float32) / 255.0
 
         image_path = save_image(frame)
-
+        print('ANN here:')
         output = run_inference(image_path)
         print('ANN:',output)
 
