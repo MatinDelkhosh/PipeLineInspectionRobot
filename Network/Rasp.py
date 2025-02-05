@@ -34,10 +34,10 @@ try:
         message_size = struct.pack("L", len(data))  # Pack the length of the data
 
         # Send the frame and 3D points over the network
-        # Assuming 3D points are generated or available
+        '''# Assuming 3D points are generated or available
         points_3d = [(0, 0, 0), (1, 1, 1)]  # Example 3D points
         points_data = pickle.dumps(points_3d)
-        client_socket.sendall(message_size + data + points_data)
+        client_socket.sendall(message_size + data + points_data)'''
 
 except KeyboardInterrupt:
     print("Streaming stopped")
