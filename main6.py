@@ -175,7 +175,7 @@ ECHO_LEFT = 19
 TRIG_RIGHT = 5
 ECHO_RIGHT = 13
 
-GPIO.cleanup()
+#GPIO.cleanup()
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(TRIG_LEFT, GPIO.OUT)
 GPIO.setup(ECHO_LEFT, GPIO.IN)
