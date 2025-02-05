@@ -263,7 +263,7 @@ try:
     #Points_updater.start()
     while True:
         distance_left = measure_distance(TRIG_LEFT, ECHO_LEFT)
-        distance_right = measure_distance(TRIG_RIGHT, ECHO_RIGHT)
+        #distance_right = measure_distance(TRIG_RIGHT, ECHO_RIGHT)
         print('fuck2')
         # Capture frame from the camera
         frame = picam2.capture_array()
