@@ -250,10 +250,10 @@ def run_inference(image):
 baseSpeed = 0  # Initialize to 0, PC will set it
 SENSITIVITY_THRESHOLD = 4
 TURN_FACTOR = 0.5
-#Points_updater = Thread(target=Update_points)
+Points_updater = Thread(target=Update_points)
 
 try:
-    #Points_updater.start()
+    Points_updater.start()
     while True:
         distance_left = measure_distance(TRIG_LEFT, ECHO_LEFT)
         distance_right = measure_distance(TRIG_RIGHT, ECHO_RIGHT)
@@ -310,6 +310,6 @@ except KeyboardInterrupt:
 
 finally:
     GPIO.cleanup()
-    #Points_updater.join()
+    Points_updater.join()
     client_socket.close()
     picam2.stop()
