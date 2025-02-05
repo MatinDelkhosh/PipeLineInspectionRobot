@@ -33,8 +33,8 @@ try:
     GPIO.output(MOTOR_RIGHT_IN2, GPIO.LOW)
     GPIO.output(MOTOR_LEFT_IN1, GPIO.HIGH)
     GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)
-    pwm1.ChangeDutyCycle(40)  # Set speed to 50%
-    pwm2.ChangeDutyCycle(40)
+    pwm1.ChangeDutyCycle(100)  # Set speed to 50%
+    pwm2.ChangeDutyCycle(100)
     sleep(10)
 finally:
     pwm1.stop()
