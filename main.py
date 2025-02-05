@@ -112,7 +112,7 @@ from math import cos,sin
 def Update_points():
     
     k = 10  
-    dt = 0.1
+    dt = 1
     global x, y, theta, points_3d
     while True:
         encoderR_d = read_encoder(encoderR)
@@ -226,6 +226,7 @@ try:
 
     while True:
         distance_left = measure_distance(TRIG_LEFT, ECHO_LEFT)
+        print('hey yoo')
         distance_right = measure_distance(TRIG_RIGHT, ECHO_RIGHT)
 
         # Receive command from the PC
