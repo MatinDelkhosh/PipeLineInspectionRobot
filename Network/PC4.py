@@ -43,6 +43,10 @@ points = []
 motor_state = tk.StringVar(value="Stopped")
 base_speed = tk.IntVar(value=0)
 
+# Speed control slider
+speed_scale = tk.Scale(root, from_=0, to=100, orient=tk.HORIZONTAL, label="Speed", variable=base_speed)
+speed_scale.pack(pady=5)
+
 # Function to update the 3D plot
 def update_plot(new_point):
     global points
@@ -59,8 +63,6 @@ def update_plot(new_point):
             ax_plot.scatter(x, y, z)  # Plot the points
         canvas.draw()  # Redraw the canvas
 
-
-
 # Function to update the camera feed
 def update_camera_feed(frame):
     # Convert the frame to RGB
@@ -73,21 +75,21 @@ def update_camera_feed(frame):
 
 # Function to handle button click
 def on_button_click():
-    global motor_state, base_speed
+    global motor_state, base_speed, conn # Make sure conn is global
+
     current_state = motor_state.get()
     new_state = "Running" if current_state == "Stopped" else "Stopped"
     motor_state.set(new_state)
+    # Get speed from slider
+    speed = base_speed.get()
 
-    speed = simpledialog.askinteger("Motor Speed", "Enter baseSpeed:", parent=root, minvalue=0, maxvalue=100)
-    if speed is not None:
-        base_speed.set(speed)
-        # Send command to Raspberry Pi
-        command = f"{new_state} speed={speed}"
-        try:
-            sock.sendto(command.encode(), (host, port))
-            print(f"Sent command: {command}")
-        except Exception as e:
-            print(f"Error sending command: {e}")
+    # Send command to Raspberry Pi using the connected socket
+    command = f"{new_state} speed={speed}"
+    try:
+        conn.send(command.encode()) # Use conn.send, not sock.sendto
+        print(f"Sent command: {command}")
+    except Exception as e:
+        print(f"Error sending command: {e}")
 
 # Socket setup
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -137,7 +139,6 @@ def receive_data():
         except Exception as e:
             print(f"Error receiving data: {e}")
             break
-
 
 # Tkinter button
 button = tk.Button(root, text="Start/Stop Motor", command=on_button_click)

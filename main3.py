@@ -230,7 +230,7 @@ def control_motors(left_speed, right_speed):
 # Call the virtual environment script using subprocess and pass the image file
 def run_inference(image_path):
     # Path to the script in your virtual environment
-    script_path = 'path_to_virtual_env_inference_script.py'
+    script_path = 'Detection/Detection.py'
 
     # Run subprocess and pass the image path to the script
     result = subprocess.run(
@@ -277,6 +277,7 @@ try:
 
                 elif command_data.startswith("speed="):
                     baseSpeed = int(command_data.split("=")[1])
+                    print(baseSpeed)
         except socket.timeout:
             pass # Handle timeout, maybe log a message
         except Exception as e:
