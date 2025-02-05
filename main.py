@@ -221,7 +221,7 @@ Points_updater = Thread(target=Update_points)
 
 try:
     Points_updater.start()
-
+    control_motors(10,10)
     while True:
         distance_left = measure_distance(TRIG_LEFT, ECHO_LEFT)
         distance_right = measure_distance(TRIG_RIGHT, ECHO_RIGHT)
