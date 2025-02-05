@@ -51,6 +51,9 @@ def read_encoder(enc):
 # Update points based on encoder and IMU data
 x, y, theta = 0, 0, 0
 points_3d = []
+kf_gyro = KalmanFilter(0.01, 0.1)
+kf_acc_x = KalmanFilter(0.01, 0.1)
+kf_acc_y = KalmanFilter(0.01, 0.1)
 
 def Update_points():
     global x, y, theta, points_3d
