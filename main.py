@@ -212,6 +212,25 @@ def control_motors(left_speed, right_speed):
         GPIO.output(MOTOR_RIGHT_IN1, GPIO.LOW)
         motor_right_pwm.ChangeDutyCycle(0)
 
+#################################### CNN ###########################################
+
+# Call the virtual environment script using subprocess and pass the image file
+def run_inference(image_path):
+    # Path to the script in your virtual environment
+    script_path = 'path_to_virtual_env_inference_script.py'
+    
+    # Run subprocess and pass the image path to the script
+    result = subprocess.run(
+        ['python3', script_path, image_path],
+        capture_output=True,
+        text=True
+    )
+
+def save_image(frame):
+    _, temp_path = tempfile.mkstemp(suffix='.jpg')
+    cv2.imwrite(temp_path, frame)
+    return temp_path
+
 ################################# Main Loop ########################################
 
 baseSpeed = 10
@@ -247,6 +266,15 @@ try:
 
         # Capture frame from the camera
         frame = picam2.capture_array()
+
+        frame_preprocessed = cv2.resize(frame, (224, 224))/255
+
+        # Optionally, you can convert the image to float32 and normalize it if required by your model
+        #frame_normalized = frame_resized.astype(np.float32) / 255.0
+
+        image_path = save_image(frame)
+
+        output = run_inference(image_path)
 
         # Process the frame for center detection (return grayscale)
         center_offset, radius, output_frame = detect_strongest_circle(frame)
