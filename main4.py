@@ -277,7 +277,7 @@ try:
 
         output = run_inference(frame)
         
-        print(f"Output from model: {output}")
+        print(f"Output from model: {output}")   
 
         # Process the frame for center detection (return grayscale)
         center_offset, radius, output_frame = detect_strongest_circle(frame)
