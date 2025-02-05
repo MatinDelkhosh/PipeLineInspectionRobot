@@ -156,6 +156,7 @@ def measure_distance(trig, echo):
     GPIO.output(trig, False)
     # Wait for the echo pin to go high
     while GPIO.input(echo) == 0:
+        print('fuck3')
         pulse_start = time.time()
 
     # Wait for the echo pin to go low
