@@ -36,7 +36,7 @@ def read_raw_data(addr):
     return value
 
 # I2C bus setup
-bus = smbus.SMBus(1)  # Use I2C bus 1
+bus = smbus.SMBus(0)  # Use I2C bus 1
 mpu_init()
 
 def read_imu():
