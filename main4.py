@@ -180,6 +180,7 @@ ECHO_LEFT = 19
 TRIG_RIGHT = 5
 ECHO_RIGHT = 13
 
+GPIO.cleanup()
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(TRIG_LEFT, GPIO.OUT)
 GPIO.setup(ECHO_LEFT, GPIO.IN)
@@ -263,7 +264,6 @@ try:
         # Receive command from the PC
         try:
             command_data = client_socket.recv(1024).decode('utf-8')
-            print("data", command_data)
             if command_data:
                 # Process the command (e.g., start/stop and speed)
                 if command_data.startswith("speed="):
