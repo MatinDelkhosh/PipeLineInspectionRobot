@@ -1,4 +1,3 @@
-
 import cv2
 import smbus2
 import time
@@ -9,14 +8,13 @@ import numpy as np
 from gpiozero import RotaryEncoder
 from picamera2 import Picamera2
 import tempfile
-from math import cos, sin
+from math import cos, sin, radians
 import os
 
 # Initialize the camera
 picam2 = Picamera2()
 picam2.configure(picam2.create_preview_configuration(main={"format": 'XRGB8888', "size": (640, 480)}))
 picam2.start()
-
 
 ################################ Used Functions ####################################
 
@@ -57,7 +55,7 @@ def detect_strongest_circle(frame):
 
         return (relative_x, relative_y), r, frame
 
-    return (0,0), 0, frame
+    return (0, 0), 0, frame
 
 # Kalman Filter
 class KalmanFilter:
@@ -79,9 +77,23 @@ bus = smbus2.SMBus(1)
 bus.write_byte_data(MPU_ADDR, 0x6B, 0)
 
 def read_imu():
-    gyro_z = bus.read_byte_data(MPU_ADDR, 0x47) - 128
-    acc_x = bus.read_byte_data(MPU_ADDR, 0x3B) - 128
-    acc_y = bus.read_byte_data(MPU_ADDR, 0x3D) - 128
+    # Read gyroscope data
+    gyro_z_high = bus.read_byte_data(MPU_ADDR, 0x47)
+    gyro_z_low = bus.read_byte_data(MPU_ADDR, 0x48)
+    gyro_z = (gyro_z_high << 8) | gyro_z_low
+    gyro_z = gyro_z if gyro_z < 32768 else gyro_z - 65536
+
+    # Read accelerometer data
+    acc_x_high = bus.read_byte_data(MPU_ADDR, 0x3B)
+    acc_x_low = bus.read_byte_data(MPU_ADDR, 0x3C)
+    acc_x = (acc_x_high << 8) | acc_x_low
+    acc_x = acc_x if acc_x < 32768 else acc_x - 65536
+
+    acc_y_high = bus.read_byte_data(MPU_ADDR, 0x3D)
+    acc_y_low = bus.read_byte_data(MPU_ADDR, 0x3E)
+    acc_y = (acc_y_high << 8) | acc_y_low
+    acc_y = acc_y if acc_y < 32768 else acc_y - 65536
+
     return gyro_z, acc_x, acc_y
 
 kf_gyro = KalmanFilter(0.01, 0.1)
@@ -96,13 +108,12 @@ wheel_diameter = 0.06
 
 def read_encoder(enc):
     angle = 360 / 334. * enc.steps
-    distance = angle * wheel_diameter # Convert angle to distance
+    distance = angle * wheel_diameter  # Convert angle to distance
     return distance
 
 # Calculate movement
 x, y, theta = 0, 0, 0
 points_3d = []
-
 
 def Update_points():
     k = 10
@@ -110,7 +121,7 @@ def Update_points():
     global x, y, theta, points_3d
     while True:
         encoderR_d = read_encoder(encoderR)
-        encoderL_d= read_encoder(encoderL)
+        encoderL_d = read_encoder(encoderL)
         encoder_d = (encoderR_d + encoderL_d) / 2
 
         encoder_dtheta = (encoderR_d - encoderL_d)
@@ -126,15 +137,15 @@ def Update_points():
         imu_dx = acc_x * dt ** 2 / 2
         imu_dy = acc_y * dt ** 2 / 2
 
-        x += w_enc * encoder_d * cos(theta) + w_imu * imu_dx
-        y += w_enc * encoder_d * sin(theta) + w_imu * imu_dy
+        x += w_enc * encoder_d * cos(radians(theta)) + w_imu * imu_dx
+        y += w_enc * encoder_d * sin(radians(theta)) + w_imu * imu_dy
         theta += w_enc * encoder_dtheta + w_imu * (gyro_z * dt)
 
         points_3d.append((x, y, 0))
         time.sleep(0.1)
 
 # UltraSonic Sensors
-def measure_distance(trig,echo):
+def measure_distance(trig, echo):
     # Ensure the trigger pin is low
     GPIO.output(trig, False)
     time.sleep(0.2)
@@ -198,6 +209,10 @@ def control_motors(left_speed, right_speed):
         GPIO.output(MOTOR_LEFT_IN1, GPIO.HIGH)
         GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)
         motor_left_pwm.ChangeDutyCycle(left_speed)
+    elif left_speed < 0:
+        GPIO.output(MOTOR_LEFT_IN1, GPIO.LOW)
+        GPIO.output(MOTOR_LEFT_IN2, GPIO.HIGH)
+        motor_left_pwm.ChangeDutyCycle(abs(left_speed))
     else:
         GPIO.output(MOTOR_LEFT_IN1, GPIO.LOW)
         GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)
@@ -207,6 +222,10 @@ def control_motors(left_speed, right_speed):
         GPIO.output(MOTOR_RIGHT_IN1, GPIO.HIGH)
         GPIO.output(MOTOR_RIGHT_IN2, GPIO.LOW)
         motor_right_pwm.ChangeDutyCycle(right_speed)
+    elif right_speed < 0:
+        GPIO.output(MOTOR_RIGHT_IN1, GPIO.LOW)
+        GPIO.output(MOTOR_RIGHT_IN2, GPIO.HIGH)
+        motor_right_pwm.ChangeDutyCycle(abs(right_speed))
     else:
         GPIO.output(MOTOR_RIGHT_IN1, GPIO.LOW)
         GPIO.output(MOTOR_RIGHT_IN2, GPIO.LOW)
@@ -248,10 +267,10 @@ try:
         # Capture frame from the camera
         frame = picam2.capture_array()
 
-        frame_preprocessed = cv2.resize(frame, (224, 224))/255
+        frame_preprocessed = cv2.resize(frame, (224, 224)) / 255
 
         # Optionally, you can convert the image to float32 and normalize it if required by your model
-        #frame_normalized = frame_resized.astype(np.float32) / 255.0
+        # frame_normalized = frame_resized.astype(np.float32) / 255.0
 
         image_path = save_image(frame)
 
@@ -259,7 +278,6 @@ try:
 
         # Clean up the temporary image file
         os.remove(image_path)
-
 
         # Process the frame for center detection (return grayscale)
         center_offset, radius, output_frame = detect_strongest_circle(frame)
@@ -275,7 +293,7 @@ try:
         print(f"Model Output: {output}")
         print(f"Circle Center X Offset: {x_offset}, Y Offset: {y_offset}")
 
-        time.sleep(0.1) #added to avoid busy loop
+        time.sleep(0.1)  # added to avoid busy loop
 
 except KeyboardInterrupt:
     print("Streaming stopped")
