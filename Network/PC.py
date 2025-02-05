@@ -1,79 +1,91 @@
 import cv2
 import socket
-import pickle
-import struct
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+import tkinter as tk
+from tkinter import simpledialog
 
-# Set up the socket for receiving the data
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host_ip = '0.0.0.0'  # Listen on all interfaces
-port = 9999
-server_socket.bind((host_ip, port))
-server_socket.listen(5)
-print("Waiting for connection...")
-client_socket, addr = server_socket.accept()
-print(f"Connection from: {addr}")
+# Create a socket to receive data
+host = 'your_raspberry_pi_ip_address'  # Replace with Raspberry Pi's IP address
+port = 12345  # Port used for communication
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.bind(('0.0.0.0', port))
 
-# Create a figure for plotting 3D points
+# Initialize the plot for 3D points
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
+points = []
 
-# Display window for the live camera feed
-cv2.namedWindow("Camera Feed", cv2.WINDOW_NORMAL)
+# Initialize OpenCV window to display the camera feed
+cv2.namedWindow('Camera Feed')
 
-while True:
-    try:
-        # Receive the message size
-        message_size_data = client_socket.recv(4)
-        if len(message_size_data) == 0:
-            break
-        message_size = struct.unpack("L", message_size_data)[0]
+# Tkinter window for user input
+root = tk.Tk()
+root.geometry('300x150')
 
-        # Receive the image frame
-        data = b""
-        while len(data) < message_size:
-            data += client_socket.recv(4096)
+motor_state = tk.StringVar(value="Stopped")
+base_speed = tk.IntVar(value=0)
 
-        frame = pickle.loads(data)
+def on_button_click():
+    global motor_state
+    motor_state.set("Running" if motor_state.get() == "Stopped" else "Stopped")
+    
+    # Get user input for baseSpeed
+    speed = simpledialog.askinteger("Motor Speed", "Enter baseSpeed:", parent=root, minvalue=0, maxvalue=100)
+    
+    # Send the motor state and baseSpeed to Raspberry Pi
+    msg = f"{motor_state.get()}:{speed}".encode()
+    sock.sendto(msg, (host, port))
 
-        # Receive the 3D points data
-        points_size_data = client_socket.recv(4)
-        points_size = struct.unpack("L", points_size_data)[0]
-        
-        points_data = b""
-        while len(points_data) < points_size:
-            points_data += client_socket.recv(4096)
+def update_points(new_points):
+    """Update the 3D plot with new points"""
+    global points
+    points.extend(new_points)
+    ax.clear()
+    ax.scatter(*zip(*points))
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
 
-        points_3d = pickle.loads(points_data)
+def receive_data():
+    """Receive frames and 3D points from Raspberry Pi"""
+    while True:
+        data, _ = sock.recvfrom(4096)
+        if data.startswith(b'FRAME:'):
+            frame_data = data[6:]
+            nparr = np.frombuffer(frame_data, np.uint8)
+            frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            if frame is not None:
+                cv2.imshow('Camera Feed', frame)
+        elif data.startswith(b'POINTS:'):
+            points_data = data[7:].decode().strip()
+            new_points = [tuple(map(float, point.split(','))) for point in points_data.split(';')]
+            update_points(new_points)
 
-        # Display the frame
-        cv2.imshow("Camera Feed", frame)
-
-        # Clear the previous plot and plot the 3D points
+def animate_plot():
+    """Animate the 3D plot to reflect the latest data"""
+    def update(frame):
         ax.clear()
-        points_3d = np.array(points_3d)
-        ax.scatter(points_3d[:, 0], points_3d[:, 1], points_3d[:, 2])
+        ax.scatter(*zip(*points))
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
+        return ax,
 
-        ax.set_xlabel('X Label')
-        ax.set_ylabel('Y Label')
-        ax.set_zlabel('Z Label')
+    ani = FuncAnimation(fig, update, blit=False)
+    plt.show()
 
-        # Refresh the plot
-        plt.pause(0.1)
+# Button to control motor state and speed
+button = tk.Button(root, text="Start/Stop Motor", command=on_button_click)
+button.pack(pady=10)
 
-        # Check for the 'q' key to exit
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+# Start threads to receive data and update the plot
+import threading
+threading.Thread(target=receive_data, daemon=True).start()
 
-    except KeyboardInterrupt:
-        print("Streaming stopped.")
-        break
-    except Exception as e:
-        print(f"Error: {e}")
-        break
+# Start Tkinter GUI loop
+root.mainloop()
 
-# Cleanup
-cv2.destroyAllWindows()
-client_socket.close()
-server_socket.close()
+# Start the plot animation loop
+animate_plot()
