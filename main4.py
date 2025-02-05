@@ -13,6 +13,7 @@ from gpiozero import RotaryEncoder
 from picamera2 import Picamera2
 import tempfile
 from math import cos, sin
+import os
 
 # Initialize the camera
 picam2 = Picamera2()
@@ -239,6 +240,7 @@ def run_inference(image_path):
         capture_output=True,
         text=True
     )
+    return result.stdout  # This will capture the output from the subprocess
 
 def save_image(frame):
     _, temp_path = tempfile.mkstemp(suffix='.jpg')
@@ -254,6 +256,7 @@ Points_updater = Thread(target=Update_points)
 
 try:
     Points_updater.start()
+    print('sth?')
     while True:
         distance_left = measure_distance(TRIG_LEFT, ECHO_LEFT)
         distance_right = measure_distance(TRIG_RIGHT, ECHO_RIGHT)
@@ -286,7 +289,12 @@ try:
         image_path = save_image(frame)
 
         output = run_inference(image_path)
-        print(output)
+        
+        print(f"Output from model: {output}")
+
+        # Clean up the temporary image file
+        os.remove(image_path)
+
 
         # Process the frame for center detection (return grayscale)
         center_offset, radius, output_frame = detect_strongest_circle(frame)

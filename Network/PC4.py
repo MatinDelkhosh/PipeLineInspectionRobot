@@ -121,6 +121,7 @@ def receive_data():
             dataBuffer = dataBuffer[frameSize:]
 
             frame = pickle.loads(frameData)
+            print('frame loaded?')
             update_camera_feed(frame)  # Assuming update_camera_feed is defined
 
             try:
