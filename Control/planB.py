@@ -88,8 +88,8 @@ try:
 
         center_offset, radius, output_frame = detect_strongest_circle(frame)
 
-        pwm1.ChangeDutyCycle(100 + center_offset[0]/50)  # Set speed to 50%
-        pwm2.ChangeDutyCycle(100 - center_offset[0]/50)
+        pwm1.ChangeDutyCycle(100 + center_offset[0]/100)  # Set speed to 50%
+        pwm2.ChangeDutyCycle(100 - center_offset[0]/100)
         sleep(0.1)
 finally:
     pwm1.stop()
