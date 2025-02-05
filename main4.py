@@ -256,9 +256,9 @@ Points_updater = Thread(target=Update_points)
 
 try:
     Points_updater.start()
-    print('sth?')
     while True:
         distance_left = measure_distance(TRIG_LEFT, ECHO_LEFT)
+        print('distanc')
         distance_right = measure_distance(TRIG_RIGHT, ECHO_RIGHT)
 
         # Receive command from the PC
@@ -313,8 +313,6 @@ try:
                 client_socket.sendall(b'POINTS:' + points_data)  # Prefix with 'POINTS:'
         except Exception as e:
             print(f"Error sending data: {e}")
-
-
 
 except KeyboardInterrupt:
     print("Streaming stopped")
