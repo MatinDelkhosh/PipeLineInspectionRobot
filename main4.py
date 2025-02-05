@@ -258,12 +258,12 @@ try:
     Points_updater.start()
     while True:
         distance_left = measure_distance(TRIG_LEFT, ECHO_LEFT)
-        print('distanc')
         distance_right = measure_distance(TRIG_RIGHT, ECHO_RIGHT)
 
         # Receive command from the PC
         try:
             command_data = client_socket.recv(1024).decode('utf-8')
+            print("data", command_data)
             if command_data:
                 # Process the command (e.g., start/stop and speed)
                 if command_data.startswith("speed="):
