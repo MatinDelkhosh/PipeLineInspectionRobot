@@ -13,7 +13,7 @@ import io
 from PIL import Image, ImageTk
 
 # Server configuration
-host = '192.168.171.150'  # ***REPLACE*** with your PC's IP address
+host = '192.168.171.250'  # ***REPLACE*** with your PC's IP address
 port = 9999
 
 # Tkinter setup
