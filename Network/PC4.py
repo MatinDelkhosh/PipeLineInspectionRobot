@@ -132,14 +132,11 @@ def receive_data():
             except Exception as e:
                 print(f"Error receiving or processing points data: {e}")
 
-
-
         except socket.timeout:
             pass # Handle timeout
         except Exception as e:
             print(f"Error receiving data: {e}")
             break
-
 
 
 # Tkinter button
