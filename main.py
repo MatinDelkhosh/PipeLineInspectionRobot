@@ -21,7 +21,7 @@ host_ip = '192.168.171.250'  # Replace with your PC's IP address
 port = 9999
 client_socket.connect((host_ip, port))
 
-#################################Used Functions#####################################
+################################ Used Functions ####################################
 
 def detect_strongest_circle(frame):
     # Convert to grayscale
@@ -201,6 +201,22 @@ motor_right_pwm = GPIO.PWM(MOTOR_RIGHT_ENA, 100)
 motor_left_pwm.start(0)
 motor_right_pwm.start(0)
 
+def control_motors(left_speed, right_speed):
+    """Control motor speeds."""
+    if left_speed > 0:
+        GPIO.output(MOTOR_LEFT_IN1, GPIO.HIGH)
+        motor_left_pwm.ChangeDutyCycle(left_speed)
+    else:
+        GPIO.output(MOTOR_LEFT_IN1, GPIO.LOW)
+        motor_left_pwm.ChangeDutyCycle(0)
+
+    if right_speed > 0:
+        GPIO.output(MOTOR_RIGHT_IN1, GPIO.HIGH)
+        motor_right_pwm.ChangeDutyCycle(right_speed)
+    else:
+        GPIO.output(MOTOR_RIGHT_IN1, GPIO.LOW)
+        motor_right_pwm.ChangeDutyCycle(0)
+        
 ################################# Main Loop ########################################
 
 baseSpeed = 10
