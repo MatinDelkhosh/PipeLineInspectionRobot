@@ -81,6 +81,7 @@ MPU_ADDR = 0x68
 bus = smbus2.SMBus(1)
 bus.write_byte_data(MPU_ADDR, 0x6B, 0)   
 
+
 def read_imu():
     gyro_z = bus.read_byte_data(MPU_ADDR, 0x47) - 128  
     acc_x = bus.read_byte_data(MPU_ADDR, 0x3B) - 128  
@@ -110,7 +111,6 @@ points_3d = []
 from math import cos,sin
 
 def Update_points():
-    
     k = 10  
     dt = 1
     global x, y, theta, points_3d
@@ -136,7 +136,7 @@ def Update_points():
         y += w_enc * encoder_d * sin(theta) + w_imu * imu_dy
         theta += w_enc * encoder_dtheta + w_imu * (gyro_z * dt)
 
-        points_3d.append((x,y,0))
+        points_3d.append((x, y, 0))
         time.sleep(dt)
 
 # UltraSonic Sensors
@@ -221,19 +221,16 @@ TURN_FACTOR = 0.5
 Points_updater = Thread(target=Update_points)
 
 try:
-
     Points_updater.start()
 
     while True:
         distance_left = measure_distance(TRIG_LEFT, ECHO_LEFT)
-        print('hey yoo')
         distance_right = measure_distance(TRIG_RIGHT, ECHO_RIGHT)
 
         # Receive command from the PC
         command_data = client_socket.recv(1024).decode('utf-8')
         if command_data:
             # Process the command (e.g., start/stop and speed)
-            print(f"Received command: {command_data}")
             if command_data == "start":
                 GPIO.output(MOTOR_LEFT_IN1, GPIO.HIGH)
                 GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)
@@ -247,41 +244,16 @@ try:
                 GPIO.output(MOTOR_RIGHT_IN2, GPIO.LOW)
                 
             elif command_data.startswith("speed="):
-                # Set the motor base speed
                 baseSpeed = int(command_data.split("=")[1])
-                pass
 
         # Capture frame from the camera
         frame = picam2.capture_array()
 
-        # frame preprocessing
-
-        # frame defect detection
-
-        # Process the frame (e.g., convert to grayscale)
-        processed_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-        # center of pipe detection
+        # Process the frame for center detection (return grayscale)
         center_offset, radius, output_frame = detect_strongest_circle(frame)
 
-        # Motor Control
-        distance_diff = distance_left - distance_right
-
-        if abs(distance_diff) < SENSITIVITY_THRESHOLD:
-                left_speed = baseSpeed
-                right_speed = baseSpeed
-        else:
-                adjustment = max(baseSpeed/4, TURN_FACTOR * abs(distance_diff)) + center_offset[0]/320
-                if distance_diff > 0:  # Turn right
-                    left_speed += adjustment
-                    right_speed -= adjustment
-                else:  # Turn left
-                    left_speed -= adjustment
-                    right_speed += adjustment
-        
-
         # Serialize the frame
-        data = pickle.dumps(processed_frame)
+        data = pickle.dumps(output_frame)  # Send the frame in color, not grayscale
         message_size = struct.pack("L", len(data))  # Pack the length of the data
 
         # Send the frame and 3D points over the network

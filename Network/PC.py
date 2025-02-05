@@ -2,105 +2,78 @@ import cv2
 import socket
 import pickle
 import struct
-import tkinter as tk
-from tkinter import Button, Entry
-from PIL import Image, ImageTk
+import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-# Socket setup
+# Set up the socket for receiving the data
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host_ip = '192.168.171.250'  # Replace with your PC's IP address
+host_ip = '0.0.0.0'  # Listen on all interfaces
 port = 9999
 server_socket.bind((host_ip, port))
 server_socket.listen(5)
-print(f"Listening on {host_ip}:{port}")
-
-# Accept a connection
+print("Waiting for connection...")
 client_socket, addr = server_socket.accept()
 print(f"Connection from: {addr}")
 
-data = b""
-payload_size = struct.calcsize("L")
-
-# Initialize Tkinter window
-root = tk.Tk()
-root.title("Raspberry Pi Video Feed")
-
-# Create a canvas for video feed
-video_frame = tk.Label(root)
-video_frame.pack()
-
-# Create an entry for speed input
-speed_entry = Entry(root)
-speed_entry.pack()
-
-# Create buttons
-def send_command(command):
-    client_socket.sendall(command.encode('utf-8'))
-
-def take_picture():
-    # Logic to take a picture (not implemented in this example)
-    print("Picture taken!")
-
-start_stop_button = Button(root, text="Start/Stop", command=lambda: send_command("start" if start_stop_button['text'] == "Start" else "stop"))
-start_stop_button.pack()
-
-take_picture_button = Button(root, text="Take Picture", command=take_picture)
-take_picture_button.pack()
-
-# Create a Matplotlib figure for 3D points
-fig = plt.Figure()
+# Create a figure for plotting 3D points
+fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-canvas = FigureCanvasTkAgg(fig, master=root)
-canvas.get_tk_widget().pack()
 
-# Function to update video feed and plot
-def update():
-    global data
-    # Send speed command
-    speed = speed_entry.get()
-    if speed:
-        send_command(f"speed:{speed}")
+# Display window for the live camera feed
+cv2.namedWindow("Camera Feed", cv2.WINDOW_NORMAL)
 
-    # Retrieve message size
-    while len(data) < payload_size:
-        data += client_socket.recv(4096)
-    packed_msg_size = data[:payload_size]
-    data = data[payload_size:]
-    msg_size = struct.unpack("L", packed_msg_size)[0]
+while True:
+    try:
+        # Receive the message size
+        message_size_data = client_socket.recv(4)
+        if len(message_size_data) == 0:
+            break
+        message_size = struct.unpack("L", message_size_data)[0]
 
-    # Retrieve all data based on message size
-    while len(data) < msg_size:
-        data += client_socket.recv(4096)
-    frame_data = data[:msg_size]
-    data = data[msg_size:]
+        # Receive the image frame
+        data = b""
+        while len(data) < message_size:
+            data += client_socket.recv(4096)
 
-    # Deserialize the frame
-    frame = pickle.loads(frame_data)
+        frame = pickle.loads(data)
 
-    # Convert frame to ImageTk format and display
-    img = Image.fromarray(frame)
-    imgtk = ImageTk.PhotoImage(image=img)
-    video_frame.imgtk = imgtk
-    video_frame.configure(image=imgtk)
+        # Receive the 3D points data
+        points_size_data = client_socket.recv(4)
+        points_size = struct.unpack("L", points_size_data)[0]
+        
+        points_data = b""
+        while len(points_data) < points_size:
+            points_data += client_socket.recv(4096)
 
-    # Handle incoming 3D points
-    points_data = data  # Assuming points data follows frame data
-    points_3d = pickle.loads(points_data)
-    ax.clear()
-    ax.scatter(*zip(*points_3d))  # Unpack points for plotting
-    canvas.draw()
+        points_3d = pickle.loads(points_data)
 
-    # Schedule the next update
-    root.after(10, update)
+        # Display the frame
+        cv2.imshow("Camera Feed", frame)
 
-# Start the update loop
-update()
+        # Clear the previous plot and plot the 3D points
+        ax.clear()
+        points_3d = np.array(points_3d)
+        ax.scatter(points_3d[:, 0], points_3d[:, 1], points_3d[:, 2])
 
-# Start the Tkinter main loop
-root.mainloop()
+        ax.set_xlabel('X Label')
+        ax.set_ylabel('Y Label')
+        ax.set_zlabel('Z Label')
+
+        # Refresh the plot
+        plt.pause(0.1)
+
+        # Check for the 'q' key to exit
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    except KeyboardInterrupt:
+        print("Streaming stopped.")
+        break
+    except Exception as e:
+        print(f"Error: {e}")
+        break
 
 # Cleanup
+cv2.destroyAllWindows()
 client_socket.close()
 server_socket.close()

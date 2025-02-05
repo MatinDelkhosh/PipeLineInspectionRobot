@@ -2,10 +2,10 @@ import cv2
 import socket
 import pickle
 import struct
+import threading
 import tkinter as tk
 from tkinter import Button
 from PIL import Image, ImageTk
-import os
 import datetime
 
 # Socket setup
@@ -28,6 +28,9 @@ root.title("Video Feed")
 video_label = tk.Label(root)
 video_label.pack()
 
+# Global variable to store the current frame
+current_frame = None
+
 # Function to save the current frame
 def save_image():
     global current_frame
@@ -42,11 +45,8 @@ def save_image():
 save_button = Button(root, text="Save Image", command=save_image)
 save_button.pack()
 
-# Global variable to store the current frame
-current_frame = None
-
-# Function to update the video feed
-def update_video_feed():
+# Function to receive video frames in a separate thread
+def receive_video():
     global current_frame
     data = b""
     payload_size = struct.calcsize("L")
@@ -55,14 +55,22 @@ def update_video_feed():
         while True:
             # Retrieve message size
             while len(data) < payload_size:
-                data += client_socket.recv(4096)
+                packet = client_socket.recv(4096)
+                if not packet:
+                    break
+                data += packet
+
             packed_msg_size = data[:payload_size]
             data = data[payload_size:]
             msg_size = struct.unpack("L", packed_msg_size)[0]
 
             # Retrieve all data based on message size
             while len(data) < msg_size:
-                data += client_socket.recv(4096)
+                packet = client_socket.recv(4096)
+                if not packet:
+                    break
+                data += packet
+
             frame_data = data[:msg_size]
             data = data[msg_size:]
 
@@ -75,22 +83,19 @@ def update_video_feed():
             img = Image.fromarray(frame_rgb)
             imgtk = ImageTk.PhotoImage(image=img)
 
-            # Update the video feed label
+            # Update the video feed label in the main UI thread
             video_label.imgtk = imgtk
             video_label.configure(image=imgtk)
-
-            # Schedule the next frame update
-            video_label.after(10, update_video_feed)
 
     except Exception as e:
         print(f"Error: {e}")
 
-# Start the video feed update loop
-update_video_feed()
+    finally:
+        client_socket.close()
+        server_socket.close()
+
+# Start video receiving in a separate thread
+threading.Thread(target=receive_video, daemon=True).start()
 
 # Start the Tkinter main loop
 root.mainloop()
-
-# Cleanup
-client_socket.close()
-server_socket.close()
