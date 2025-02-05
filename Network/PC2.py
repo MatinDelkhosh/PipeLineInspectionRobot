@@ -2,109 +2,112 @@ import cv2
 import socket
 import pickle
 import struct
+import threading
 import tkinter as tk
-from tkinter import Label, Button
+from tkinter import Button
 from PIL import Image, ImageTk
-import os
+import datetime
 
-# Server Connection Settings
-host_ip = '192.168.171.250'  # Your PC's IP address
+# Socket setup
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+host_ip = '0.0.0.0'  # Listen on all interfaces
 port = 9999
-
-# Create the main Tkinter window
-root = tk.Tk()
-root.title("Camera Feed")
-root.geometry("800x600")
-
-# Create a label to display the camera feed
-video_label = Label(root)
-video_label.pack()
-
-# Connect to client (Raspberry Pi or another sender)
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client_socket.bind((host_ip, port))
-client_socket.listen(5)
+server_socket.bind((host_ip, port))
+server_socket.listen(5)
 print(f"Listening on {host_ip}:{port}")
 
-client_conn, addr = client_socket.accept()
+# Accept a connection
+client_socket, addr = server_socket.accept()
 print(f"Connection from: {addr}")
 
-data = b""
-payload_size = struct.calcsize("L")
-last_frame = None  # Store the last received frame globally
-last_3d_points = None  # Store the last received 3D points globally
+# Tkinter setup
+root = tk.Tk()
+root.title("Video Feed")
 
-def receive_frame():
-    """Receives a frame from the socket and updates the Tkinter GUI."""
-    global data, last_frame, last_3d_points
+# Create a label for the video feed
+video_label = tk.Label(root)
+video_label.pack()
 
-    while len(data) < payload_size:
-        data += client_conn.recv(4096)
-    
-    packed_msg_size = data[:payload_size]
-    data = data[payload_size:]
-    msg_size = struct.unpack("L", packed_msg_size)[0]
+# Global variable to store the current frame
+current_frame = None
 
-    while len(data) < msg_size:
-        data += client_conn.recv(4096)
-    
-    frame_data = data[:msg_size]
-    data = data[msg_size:]
-
-    # Deserialize the frame and store it globally
-    last_frame = pickle.loads(frame_data)
-
-    # Deserialize the 3D points
-    points_data = data  # Assuming points data follows frame data
-    last_3d_points = pickle.loads(points_data)
-
-    # Convert the frame to ImageTk format
-    cv_image = cv2.cvtColor(last_frame, cv2.COLOR_BGR2RGB)
-    img = Image.fromarray(cv_image)
-    imgtk = ImageTk.PhotoImage(image=img)
-
-    # Update the video label with the new frame
-    video_label.imgtk = imgtk
-    video_label.configure(image=imgtk)
-
-    # Schedule the next frame update
-    root.after(10, receive_frame)
-
+# Function to save the current frame
 def save_image():
-    """Saves the last received frame as a unique image file."""
-    global last_frame
+    global current_frame
+    if current_frame is not None:
+        # Generate a unique filename using the current timestamp
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"captured_image_{timestamp}.jpg"
+        cv2.imwrite(filename, current_frame)
+        print(f"Image saved as {filename}")
 
-    if last_frame is None:
-        print("No frame received yet.")
-        return
+# Create a button to save the image
+save_button = Button(root, text="Save Image", command=save_image)
+save_button.pack()
 
-    # Create the output directory if it doesn't exist
-    image_dir = "captured_images"
-    os.makedirs(image_dir, exist_ok=True)
+# Function to send data back to the sender
+def send_acknowledgment(message):
+    try:
+        # Send a message to the client (sender)
+        client_socket.sendall(message.encode('utf-8'))
+        print(f"Acknowledgment sent: {message}")
+    except Exception as e:
+        print(f"Error sending acknowledgment: {e}")
 
-    # Get the next unique filename
-    file_count = len([name for name in os.listdir(image_dir) if name.startswith("image_") and name.endswith(".jpg")])
-    filename = os.path.join(image_dir, f"image_{file_count + 1:03d}.jpg")
+# Function to receive video frames in a separate thread
+def receive_video():
+    global current_frame
+    data = b""
+    payload_size = struct.calcsize("L")
 
-    # Save the frame as an image
-    cv2.imwrite(filename, last_frame)
-    print(f"Image saved as: {filename}")
+    try:
+        while True:
+            # Retrieve message size
+            while len(data) < payload_size:
+                packet = client_socket.recv(4096)
+                if not packet:
+                    break
+                data += packet
 
-def stop_stream():
-    """Stops the camera stream and closes the application."""
-    client_conn.close()
-    client_socket.close()
-    root.quit()
+            packed_msg_size = data[:payload_size]
+            data = data[payload_size:]
+            msg_size = struct.unpack("L", packed_msg_size)[0]
 
-# Create buttons for taking pictures and stopping the stream
-capture_button = Button(root, text="Capture Image", command=save_image, font=("Arial", 14), bg="green", fg="white")
-capture_button.pack(pady=10)
+            # Retrieve all data based on message size
+            while len(data) < msg_size:
+                packet = client_socket.recv(4096)
+                if not packet:
+                    break
+                data += packet
 
-stop_button = Button(root, text="Stop Stream", command=stop_stream, font=("Arial", 14), bg="red", fg="white")
-stop_button.pack(pady=10)
+            frame_data = data[:msg_size]
+            data = data[msg_size:]
 
-# Start receiving frames
-receive_frame()
+            # Deserialize the frame
+            frame = pickle.loads(frame_data)
+            current_frame = frame  # Store the current frame for saving
 
-# Run the Tkinter main loop
+            # Convert the frame to RGB for display in Tkinter
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            img = Image.fromarray(frame_rgb)
+            imgtk = ImageTk.PhotoImage(image=img)
+
+            # Update the video feed label in the main UI thread
+            video_label.imgtk = imgtk
+            video_label.configure(image=imgtk)
+
+            # Send acknowledgment to the sender after each frame is received
+            send_acknowledgment("Frame received")
+
+    except Exception as e:
+        print(f"Error: {e}")
+
+    finally:
+        client_socket.close()
+        server_socket.close()
+
+# Start video receiving in a separate thread
+threading.Thread(target=receive_video, daemon=True).start()
+
+# Start the Tkinter main loop
 root.mainloop()

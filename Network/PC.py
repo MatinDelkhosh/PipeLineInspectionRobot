@@ -10,8 +10,8 @@ import threading
 
 # Create a socket to receive data
 host = '192.168.171.150'  # Replace with Raspberry Pi's IP address
-port = 12345  # Port used for communication
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+port = 9999  # Port used for communication
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.bind(('0.0.0.0', port))
 
 # Initialize the OpenCV window to display the camera feed (we won't need this anymore)
