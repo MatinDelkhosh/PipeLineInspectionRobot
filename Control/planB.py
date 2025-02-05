@@ -75,13 +75,14 @@ pwm2 = GPIO.PWM(MOTOR_RIGHT_ENA, 1000)
 pwm2.start(0)
 
 try:
+    GPIO.output(MOTOR_RIGHT_IN1, GPIO.HIGH)
+    GPIO.output(MOTOR_RIGHT_IN2, GPIO.LOW)
+    GPIO.output(MOTOR_LEFT_IN1, GPIO.HIGH)
+    GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)
     while True:
         print('moving')
         # Move motor forward
-        GPIO.output(MOTOR_RIGHT_IN1, GPIO.HIGH)
-        GPIO.output(MOTOR_RIGHT_IN2, GPIO.LOW)
-        GPIO.output(MOTOR_LEFT_IN1, GPIO.HIGH)
-        GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)
+
         
         # Capture frame from the camera
         frame = picam2.capture_array()
