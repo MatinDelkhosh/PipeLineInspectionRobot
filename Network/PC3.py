@@ -1,47 +1,49 @@
 import cv2
 import socket
-import struct
 import pickle
+import struct
 
-# Setup socket
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client_socket.connect(("192.168.171.150", 9999))  # Replace with your Raspberry Pi's IP
+# Socket setup
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+host_ip = '192.168.171.250'  # Replace with your PC's IP address
+port = 9999
+server_socket.bind((host_ip, port))
+server_socket.listen(5)
+print(f"Listening on {host_ip}:{port}")
+
+# Accept a connection
+client_socket, addr = server_socket.accept()
+print(f"Connection from: {addr}")
 
 data = b""
-payload_size = struct.calcsize(">L")
+payload_size = struct.calcsize("L")
 
 try:
     while True:
-        # Receive frame size
+        # Retrieve message size
         while len(data) < payload_size:
-            packet = client_socket.recv(4096)
-            if not packet:
-                break
-            data += packet
-        packed_size = data[:payload_size]
+            data += client_socket.recv(4096)
+        packed_msg_size = data[:payload_size]
         data = data[payload_size:]
-        frame_size = struct.unpack(">L", packed_size)[0]
+        msg_size = struct.unpack("L", packed_msg_size)[0]
 
-        # Receive frame data
-        while len(data) < frame_size:
-            packet = client_socket.recv(4096)
-            if not packet:
-                break
-            data += packet
-        
-        frame_data = data[:frame_size]
-        data = data[frame_size:]
+        # Retrieve all data based on message size
+        while len(data) < msg_size:
+            data += client_socket.recv(4096)
+        frame_data = data[:msg_size]
+        data = data[msg_size:]
 
-        # Deserialize frame
+        # Deserialize the frame
         frame = pickle.loads(frame_data)
 
-        # Display frame
-        cv2.imshow("Video Stream", frame)
-        if cv2.waitKey(1) & 0xFF == ord("q"):
+        # Display the frame
+        cv2.imshow("Received Frame", frame)
+        if cv2.waitKey(1) == 27:  # Press 'Esc' to exit
             break
 
 except KeyboardInterrupt:
-    print("Closing connection...")
+    print("Streaming stopped")
+
 finally:
     client_socket.close()
     cv2.destroyAllWindows()

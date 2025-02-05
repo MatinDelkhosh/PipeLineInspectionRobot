@@ -1,37 +1,38 @@
 import cv2
 import socket
-import struct
 import pickle
+import struct
 from picamera2 import Picamera2
 
-# Initialize camera
+# Initialize the camera
 picam2 = Picamera2()
-picam2.preview_configuration.main.size = (640, 480)
-picam2.preview_configuration.main.format = "RGB888"
-picam2.configure("preview")
+picam2.configure(picam2.create_preview_configuration(main={"format": 'XRGB8888', "size": (640, 480)}))
 picam2.start()
 
-# Setup socket
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind(("0.0.0.0", 8485))  # Listen on all interfaces, port 8485
-server_socket.listen(1)
-print("Waiting for connection...")
-
-conn, addr = server_socket.accept()
-print(f"Connection from {addr}")
+# Socket setup
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+host_ip = '192.168.171.250'  # Replace with your PC's IP address
+port = 9999
+client_socket.connect((host_ip, port))
 
 try:
     while True:
+        # Capture frame from the camera
         frame = picam2.capture_array()
-        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)  # Convert to grayscale
 
-        # Serialize frame
-        data = pickle.dumps(frame)
-        conn.sendall(struct.pack(">L", len(data)) + data)  # Send size + data
+        # Process the frame (e.g., convert to grayscale)
+        processed_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+        # Serialize the frame
+        data = pickle.dumps(processed_frame)
+        message_size = struct.pack("L", len(data))  # Pack the length of the data
+
+        # Send the frame over the network
+        client_socket.sendall(message_size + data)
 
 except KeyboardInterrupt:
-    print("Stopping...")
+    print("Streaming stopped")
+
 finally:
-    conn.close()
-    server_socket.close()
-    picam2.close()
+    client_socket.close()
+    picam2.stop()
