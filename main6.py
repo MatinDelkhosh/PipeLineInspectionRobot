@@ -72,7 +72,7 @@ class KalmanFilter:
         return self.estimate
 
 # IMU
-MPU_ADDR = 0x68
+MPU_ADDR = 0x69
 bus = smbus2.SMBus(1)
 bus.write_byte_data(MPU_ADDR, 0x6B, 0)
 
