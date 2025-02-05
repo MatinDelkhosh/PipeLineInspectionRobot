@@ -250,6 +250,7 @@ try:
     #Points_updater.start()
     while True:
         distance_left = measure_distance(TRIG_LEFT, ECHO_LEFT)
+        distance_right = measure_distance(TRIG_RIGHT, ECHO_RIGHT)
 
         # Receive command from the PC
         try:
