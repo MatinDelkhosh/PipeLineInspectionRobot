@@ -291,6 +291,7 @@ except KeyboardInterrupt:
     print("Streaming stopped")
 
 finally:
+    GPIO.cleanup()
     Points_updater.join()
     client_socket.close()
     picam2.stop()
