@@ -24,7 +24,7 @@ try:
         processed_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         # Serialize the frame
-        data = pickle.dumps(processed_frame)
+        data = pickle.dumps(frame)
         message_size = struct.pack("L", len(data))  # Pack the length of the data
 
         # Send the frame over the network

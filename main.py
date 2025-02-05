@@ -7,8 +7,9 @@ import time
 import RPi.GPIO as GPIO
 from threading import Thread
 import subprocess
-from picamera2 import Picamera2
 import numpy as np
+from gpiozero import RotaryEncoder
+from picamera2 import Picamera2
 
 # Initialize the camera
 picam2 = Picamera2()
@@ -92,7 +93,6 @@ kf_acc_x = KalmanFilter(0.01, 0.1)
 kf_acc_y = KalmanFilter(0.01, 0.1)
 
 # Encoder
-from gpiozero import RotaryEncoder
 encoderR = RotaryEncoder(25, 8, max_steps=0)
 encoderL = RotaryEncoder(9, 11, max_steps=0)
 
