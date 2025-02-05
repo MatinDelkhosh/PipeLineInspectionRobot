@@ -9,9 +9,11 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import threading
 import struct
 import pickle
+import io
+from PIL import Image, ImageTk
 
 # Server configuration
-host = '192.168.171.150'  # Replace with your desired server IP address
+host = '192.168.171.150'  # ***REPLACE*** with your PC's IP address
 port = 9999
 
 # Tkinter setup
@@ -63,15 +65,12 @@ def update_plot(new_point):
             ax_plot.scatter(x, y, z)  # Plot the points
         canvas.draw()  # Redraw the canvas
 
-# Function to update the camera feed
 def update_camera_feed(frame):
-    # Convert the frame to RGB
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    # Convert the frame to a Tkinter-compatible image
-    img = tk.PhotoImage(data=cv2.imencode('.png', frame_rgb)[1].tobytes())
-    # Update the label with the new image
-    camera_label.config(image=img)
-    camera_label.image = img
+    img = Image.fromarray(frame_rgb)
+    imgtk = ImageTk.PhotoImage(image=img)
+    camera_label.config(image=imgtk)
+    camera_label.image = imgtk
 
 # Function to handle button click
 def on_button_click():
@@ -84,7 +83,7 @@ def on_button_click():
     speed = base_speed.get()
 
     # Send command to Raspberry Pi using the connected socket
-    command = f"{new_state} speed={speed}"
+    command = f"speed={speed}" if new_state == "Running" else "stop"
     try:
         conn.send(command.encode()) # Use conn.send, not sock.sendto
         print(f"Sent command: {command}")
