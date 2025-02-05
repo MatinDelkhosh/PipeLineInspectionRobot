@@ -257,13 +257,13 @@ baseSpeed = 0  # Initialize to 0, PC will set it
 SENSITIVITY_THRESHOLD = 4
 TURN_FACTOR = 0.5
 #Points_updater = Thread(target=Update_points)
-
+print('fuck1')
 try:
     #Points_updater.start()
     while True:
         distance_left = measure_distance(TRIG_LEFT, ECHO_LEFT)
         distance_right = measure_distance(TRIG_RIGHT, ECHO_RIGHT)
-
+        print('fuck2')
         # Capture frame from the camera
         frame = picam2.capture_array()
 
@@ -275,6 +275,7 @@ try:
         image_path = save_image(frame)
 
         output = run_inference(image_path)
+        print('fuck3')
 
         # Clean up the temporary image file
         os.remove(image_path)
