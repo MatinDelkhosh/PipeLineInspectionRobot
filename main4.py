@@ -92,7 +92,7 @@ class KalmanFilter:
 # IMU
 MPU_ADDR = 0x68
 bus = smbus2.SMBus(1)
-bus.write_byte_data(MPU_ADDR, 0x6B, 0)
+#bus.write_byte_data(MPU_ADDR, 0x6B, 0)
 
 def read_imu():
     gyro_z = bus.read_byte_data(MPU_ADDR, 0x47) - 128
@@ -244,10 +244,10 @@ def run_inference(image):
 baseSpeed = 0  # Initialize to 0, PC will set it
 SENSITIVITY_THRESHOLD = 4
 TURN_FACTOR = 0.5
-Points_updater = Thread(target=Update_points)
+#Points_updater = Thread(target=Update_points)
 
 try:
-    Points_updater.start()
+    #Points_updater.start()
     while True:
         distance_left = measure_distance(TRIG_LEFT, ECHO_LEFT)
 
@@ -303,6 +303,6 @@ except KeyboardInterrupt:
 
 finally:
     GPIO.cleanup()
-    Points_updater.join()
+    #Points_updater.join()
     client_socket.close()
     picam2.stop()
