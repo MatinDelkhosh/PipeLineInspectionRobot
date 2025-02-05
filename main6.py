@@ -74,7 +74,7 @@ class KalmanFilter:
 # IMU
 MPU_ADDR = 0x69
 bus = smbus2.SMBus(1)
-bus.write_byte_data(MPU_ADDR, 0x6B, 0)
+#bus.write_byte_data(MPU_ADDR, 0x6B, 0)
 
 def read_imu():
     # Read gyroscope data
@@ -188,8 +188,8 @@ MOTOR_LEFT_ENA = 24
 MOTOR_LEFT_IN1 = 27
 MOTOR_LEFT_IN2 = 18
 MOTOR_RIGHT_ENA = 23
-MOTOR_RIGHT_IN1 = 17
-MOTOR_RIGHT_IN2 = 22
+MOTOR_RIGHT_IN1 = 22
+MOTOR_RIGHT_IN2 = 17
 
 GPIO.setup(MOTOR_LEFT_ENA, GPIO.OUT)
 GPIO.setup(MOTOR_LEFT_IN1, GPIO.OUT)
@@ -256,10 +256,10 @@ def save_image(frame):
 baseSpeed = 0  # Initialize to 0, PC will set it
 SENSITIVITY_THRESHOLD = 4
 TURN_FACTOR = 0.5
-Points_updater = Thread(target=Update_points)
+#Points_updater = Thread(target=Update_points)
 
 try:
-    Points_updater.start()
+    #Points_updater.start()
     while True:
         distance_left = measure_distance(TRIG_LEFT, ECHO_LEFT)
         distance_right = measure_distance(TRIG_RIGHT, ECHO_RIGHT)
@@ -300,5 +300,5 @@ except KeyboardInterrupt:
 
 finally:
     GPIO.cleanup()
-    Points_updater.join()
+    #Points_updater.join()
     picam2.stop()
