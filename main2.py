@@ -58,7 +58,7 @@ kf_acc_y = KalmanFilter(0.01, 0.1)
 def Update_points():
     global x, y, theta, points_3d
     k = 10  
-    dt = 1
+    dt = 0.01
     print("Starting to update points...")
     while True:
         encoderR_d = read_encoder(encoderR)
@@ -103,8 +103,8 @@ GPIO.setup(MOTOR_LEFT_IN2, GPIO.OUT)
 
 motor_left_pwm = GPIO.PWM(MOTOR_LEFT_ENA, 100)
 motor_right_pwm = GPIO.PWM(MOTOR_RIGHT_ENA, 100)
-motor_left_pwm.start(0)
-motor_right_pwm.start(0)
+motor_left_pwm.start(10)
+motor_right_pwm.start(10)
 
 def control_motors(left_speed, right_speed):
     """Control motor speeds."""
