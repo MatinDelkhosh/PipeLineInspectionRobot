@@ -36,7 +36,7 @@ def detect_strongest_circle(frame):
     # Detect circles using HoughCircles
     circles = cv2.HoughCircles(
         blurred, 
-        cv2.HOUGH_GRADIENT, 
+        cv2.HOUGHT_GRADIENT, 
         dp=1.5, 
         minDist=30, 
         param1=80, 
@@ -80,7 +80,6 @@ class KalmanFilter:
 MPU_ADDR = 0x68
 bus = smbus2.SMBus(1)
 bus.write_byte_data(MPU_ADDR, 0x6B, 0)   
-
 
 def read_imu():
     gyro_z = bus.read_byte_data(MPU_ADDR, 0x47) - 128  
