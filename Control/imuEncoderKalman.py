@@ -1,11 +1,10 @@
 import numpy as np
 import smbus2
 import time
-import RPi.GPIO as GPIO
+from gpiozero import RotaryEncoder
 
 k = 10  
 dt = 0.1  
-
 
 x, y, theta = 0, 0, 0  
 
@@ -20,24 +19,12 @@ def read_imu():
     acc_y = bus.read_byte_data(MPU_ADDR, 0x3D) - 128  
     return gyro_z, acc_x, acc_y
 
-# encoder
-ENCODER_A = 17
-ENCODER_B = 27
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(ENCODER_A, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(ENCODER_B, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-
-encoder_ticks = 0
-def encoder_callback(channel):
-    global encoder_ticks
-    encoder_ticks += 1
-
-GPIO.add_event_detect(ENCODER_A, GPIO.RISING, callback=encoder_callback)
+# Instantiate the RotaryEncoder
+encoder = RotaryEncoder(20, 21, max_steps=0)
 
 def read_encoder():
-    global encoder_ticks
-    distance = encoder_ticks * 0.01 
-    encoder_ticks = 0
+    angle = 360 / 334. * encoder.steps  # Assuming ppr = 300.8
+    distance = angle * 0.01  # Convert angle to distance
     return distance, 0.0 
 
 class KalmanFilter:
