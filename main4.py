@@ -90,14 +90,20 @@ class KalmanFilter:
         return self.estimate
 
 # IMU
-MPU_ADDR = 0x68
+# MPU6050 Registers
+MPU6050_ADDR = 0x68
+PWR_MGMT_1 = 0x6B
+ACCEL_XOUT_H = 0x3B
+GYRO_XOUT_H = 0x43
+
 bus = smbus2.SMBus(1)
-#bus.write_byte_data(MPU_ADDR, 0x6B, 0)
+# Wake up MPU6050
+bus.write_byte_data(MPU6050_ADDR, PWR_MGMT_1, 0)
 
 def read_imu():
-    gyro_z = bus.read_byte_data(MPU_ADDR, 0x47) - 128
-    acc_x = bus.read_byte_data(MPU_ADDR, 0x3B) - 128
-    acc_y = bus.read_byte_data(MPU_ADDR, 0x3D) - 128
+    gyro_z = bus.read_byte_data(MPU6050_ADDR, 0x47) - 128
+    acc_x = bus.read_byte_data(MPU6050_ADDR, 0x3B) - 128
+    acc_y = bus.read_byte_data(MPU6050_ADDR, 0x3D) - 128
     return gyro_z, acc_x, acc_y
 
 kf_gyro = KalmanFilter(0.01, 0.1)
