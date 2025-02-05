@@ -180,7 +180,6 @@ ECHO_LEFT = 19
 TRIG_RIGHT = 5
 ECHO_RIGHT = 13
 
-GPIO.cleanup()
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(TRIG_LEFT, GPIO.OUT)
 GPIO.setup(ECHO_LEFT, GPIO.IN)
@@ -231,22 +230,14 @@ def control_motors(left_speed, right_speed):
 #################################### CNN ###########################################
 
 # Call the virtual environment script using subprocess and pass the image file
-def run_inference(image_path):
-    # Path to the script in your virtual environment
-    script_path = 'Detection/Detection.py'
+def run_inference(image):
+    # Preprocess the image for inference
+    image_resized = tf.image.resize(image, (224, 224))  # Adjust size to model input
+    image_normalized = np.expand_dims(image_resized, axis=0).numpy().astype(np.float32) / 255.0
 
-    # Run subprocess and pass the image path to the script
-    result = subprocess.run(
-        ['python3', script_path, image_path],
-        capture_output=True,
-        text=True
-    )
-    return result.stdout  # This will capture the output from the subprocess
-
-def save_image(frame):
-    _, temp_path = tempfile.mkstemp(suffix='.jpg')
-    cv2.imwrite(temp_path, frame)
-    return temp_path
+    # Call the inference function
+    output = run_inference(interpreter, image_normalized)
+    return output  # This will capture the output from the subprocess
 
 ################################# Main Loop ########################################
 
@@ -259,7 +250,6 @@ try:
     Points_updater.start()
     while True:
         distance_left = measure_distance(TRIG_LEFT, ECHO_LEFT)
-        distance_right = measure_distance(TRIG_RIGHT, ECHO_RIGHT)
 
         # Receive command from the PC
         try:
@@ -269,7 +259,6 @@ try:
                 if command_data.startswith("speed="):
                     baseSpeed = int(command_data.split("=")[1])
                     print(f"Received speed: {baseSpeed}")
-                    control_motors(baseSpeed,baseSpeed)
                 elif command_data == "stop":
                      control_motors(0,0)
 
@@ -286,18 +275,13 @@ try:
         # Optionally, you can convert the image to float32 and normalize it if required by your model
         #frame_normalized = frame_resized.astype(np.float32) / 255.0
 
-        image_path = save_image(frame)
-
-        output = run_inference(image_path)
+        output = run_inference(frame)
         
         print(f"Output from model: {output}")
 
-        # Clean up the temporary image file
-        os.remove(image_path)
-
-
         # Process the frame for center detection (return grayscale)
         center_offset, radius, output_frame = detect_strongest_circle(frame)
+        control_motors(baseSpeed+center_offset[0]/320,baseSpeed-center_offset[0]/320)
 
         # Serialize the frame
         data = pickle.dumps(output_frame)  # Send the frame in color, not grayscale
