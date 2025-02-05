@@ -82,7 +82,7 @@ def Update_points():
         theta += w_enc * encoder_dtheta + w_imu * (gyro_z * dt)
 
         points_3d.append((x, y, 0))
-        print(f"Updated position: x={x}, y={y}, theta={theta}")
+        print(f"Updated position: x={encoderR_d}, y={y}, theta={gyro_z}")
         time.sleep(dt)
 
 # Motor pins setup
