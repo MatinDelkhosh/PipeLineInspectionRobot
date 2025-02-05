@@ -6,45 +6,37 @@ GPIO.cleanup()
 GPIO.setmode(GPIO.BCM)  # Use GPIO numbers instead of physical pin numbers
 
 # Pin setup
-IN1 = 22  # GPIO pin connected to IN1
-IN2 = 18  # GPIO pin connected to IN2
-ENA = 24  # GPIO pin connected to ENA (PWM)
+MOTOR_LEFT_ENA = 24
+MOTOR_LEFT_IN1 = 27
+MOTOR_LEFT_IN2 = 18
+MOTOR_RIGHT_ENA = 23
+MOTOR_RIGHT_IN1 = 22
+MOTOR_RIGHT_IN2 = 17
 
-GPIO.setup(IN1, GPIO.OUT)
-GPIO.setup(IN2, GPIO.OUT)
-GPIO.setup(ENA, GPIO.OUT)
+GPIO.setup(MOTOR_LEFT_ENA, GPIO.OUT)
+GPIO.setup(MOTOR_LEFT_IN1, GPIO.OUT)
+GPIO.setup(MOTOR_RIGHT_ENA, GPIO.OUT)
+GPIO.setup(MOTOR_RIGHT_IN1, GPIO.OUT)
+GPIO.setup(MOTOR_RIGHT_IN2, GPIO.OUT)
+GPIO.setup(MOTOR_LEFT_IN2, GPIO.OUT)
 
 # Set up PWM for speed control
-pwm = GPIO.PWM(ENA, 1000)  # Frequency = 1kHz
-pwm.start(0)  # Start with 0% duty cycle
+pwm1 = GPIO.PWM(MOTOR_LEFT_ENA, 1000)  # Frequency = 1kHz
+pwm1.start(0)  # Start with 0% duty cycle
+pwm2 = GPIO.PWM(MOTOR_RIGHT_ENA, 1000) 
+pwm2.start(0)
 
 try:
     print('moving')
     # Move motor forward
-    GPIO.output(IN1, GPIO.HIGH)
-    GPIO.output(IN2, GPIO.LOW)
-    pwm.ChangeDutyCycle(80)  # Set speed to 50%
-    print(80)
-    sleep(5)
-
-    # Stop motor
-    pwm.ChangeDutyCycle(90)
-    print(90)
-    sleep(2)
-
-    # Move motor backward
-    GPIO.output(IN1, GPIO.LOW)
-    GPIO.output(IN2, GPIO.HIGH)
-    pwm.ChangeDutyCycle(60)
-    print(60)
-    sleep(5)
-
-    GPIO.output(IN1, GPIO.LOW)
-    GPIO.output(IN2, GPIO.HIGH)
-    pwm.ChangeDutyCycle(100)  # Set speed to 75%
-    print(100)
-    sleep(5)
-
+    GPIO.output(MOTOR_RIGHT_IN1, GPIO.HIGH)
+    GPIO.output(MOTOR_RIGHT_IN2, GPIO.LOW)
+    GPIO.output(MOTOR_LEFT_IN1, GPIO.HIGH)
+    GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)
+    pwm1.ChangeDutyCycle(40)  # Set speed to 50%
+    pwm2.ChangeDutyCycle(40)
+    sleep(10)
 finally:
-    pwm.stop()
+    pwm1.stop()
+    pwm2.stop()
     GPIO.cleanup()
