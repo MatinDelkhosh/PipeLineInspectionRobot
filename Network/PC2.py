@@ -32,11 +32,11 @@ print(f"Connection from: {addr}")
 data = b""
 payload_size = struct.calcsize("L")
 last_frame = None  # Store the last received frame globally
-
+last_3d_points = None  # Store the last received 3D points globally
 
 def receive_frame():
     """Receives a frame from the socket and updates the Tkinter GUI."""
-    global data, last_frame
+    global data, last_frame, last_3d_points
 
     while len(data) < payload_size:
         data += client_conn.recv(4096)
@@ -54,6 +54,10 @@ def receive_frame():
     # Deserialize the frame and store it globally
     last_frame = pickle.loads(frame_data)
 
+    # Deserialize the 3D points
+    points_data = data  # Assuming points data follows frame data
+    last_3d_points = pickle.loads(points_data)
+
     # Convert the frame to ImageTk format
     cv_image = cv2.cvtColor(last_frame, cv2.COLOR_BGR2RGB)
     img = Image.fromarray(cv_image)
@@ -65,7 +69,6 @@ def receive_frame():
 
     # Schedule the next frame update
     root.after(10, receive_frame)
-
 
 def save_image():
     """Saves the last received frame as a unique image file."""
@@ -87,13 +90,11 @@ def save_image():
     cv2.imwrite(filename, last_frame)
     print(f"Image saved as: {filename}")
 
-
 def stop_stream():
     """Stops the camera stream and closes the application."""
     client_conn.close()
     client_socket.close()
     root.quit()
-
 
 # Create buttons for taking pictures and stopping the stream
 capture_button = Button(root, text="Capture Image", command=save_image, font=("Arial", 14), bg="green", fg="white")
