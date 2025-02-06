@@ -4,11 +4,12 @@ from time import sleep
 from picamera2 import Picamera2
 import cv2
 import numpy as np
-from threading import Thread
+import threading
 import socket
 import pickle
 import struct
 import smbus2
+from math import cos,sin
 
 # Set pin numbering mode
 GPIO.setmode(GPIO.BCM)  # Use GPIO numbers instead of physical pin numbers
@@ -129,7 +130,6 @@ class KalmanFilter:
         return self.estimate
 
 # IMU
-
 # MPU6050 Registers
 MPU6050_ADDR = 0x68
 PWR_MGMT_1 = 0x6B
@@ -165,35 +165,45 @@ def read_encoder(enc):
 x, y, theta = 0, 0, 0
 points_3d = []
 
-
-def Update_points():
-    k = 10
-    dt = 1
+def Update_points(k=10, dt=1):
     global x, y, theta, points_3d
-    while True:
-        encoderR_d = read_encoder(encoderR)
-        encoderL_d= read_encoder(encoderL)
-        encoder_d = (encoderR_d + encoderL_d) / 2
+    running = True  # Control flag for stopping the loop
+    
+    while running:
+        try:
+            # Read sensors
+            encoderR_d = read_encoder(encoderR)
+            encoderL_d = read_encoder(encoderL)
+            encoder_d = (encoderR_d + encoderL_d) / 2
+            encoder_dtheta = (encoderR_d - encoderL_d)
 
-        encoder_dtheta = (encoderR_d - encoderL_d)
+            gyro_z_raw, acc_x_raw, acc_y_raw = read_imu()
+            gyro_z = kf_gyro.update(gyro_z_raw)
+            acc_x = kf_acc_x.update(acc_x_raw)
+            acc_y = kf_acc_y.update(acc_y_raw)
 
-        gyro_z_raw, acc_x_raw, acc_y_raw = read_imu()
-        gyro_z = kf_gyro.update(gyro_z_raw)
-        acc_x = kf_acc_x.update(acc_x_raw)
-        acc_y = kf_acc_y.update(acc_y_raw)
+            # Compute weight factors
+            w_imu = abs(gyro_z) / (abs(gyro_z) + k) if abs(gyro_z) + k != 0 else 0.5
+            w_enc = 1 - w_imu
 
-        w_imu = abs(gyro_z) / (abs(gyro_z) + k)
-        w_enc = 1 - w_imu
+            # Compute motion updates
+            imu_dx = acc_x * (dt ** 2) / 2
+            imu_dy = acc_y * (dt ** 2) / 2
 
-        imu_dx = acc_x * dt ** 2 / 2
-        imu_dy = acc_y * dt ** 2 / 2
+            # Thread-safe position update
+            with threading.Lock():
+                x += w_enc * encoder_d * cos(theta) + w_imu * imu_dx
+                y += w_enc * encoder_d * sin(theta) + w_imu * imu_dy
+                theta += w_enc * encoder_dtheta + w_imu * (gyro_z * dt)
 
-        x += w_enc * encoder_d * cos(theta) + w_imu * imu_dx
-        y += w_enc * encoder_d * sin(theta) + w_imu * imu_dy
-        theta += w_enc * encoder_dtheta + w_imu * (gyro_z * dt)
+                points_3d.append((x, y, 0))
 
-        points_3d.append((x, y, 0))
-        time.sleep(0.1)
+            sleep(0.1)  # 100ms delay for real-time update
+            print('\rpoints calcd {x}',end='')
+
+        except Exception as e:
+            print(f"Error in Update_points: {e}")
+            running = False  # Stop the loop if an error occurs
 
 # Global variable for motor control
 motor_running = True
@@ -215,8 +225,10 @@ def listen_for_server_commands():
             break
 
 # Start a separate thread for listening to the server
-command_listener = Thread(target=listen_for_server_commands, daemon=True)
+command_listener = threading.Thread(target=listen_for_server_commands, daemon=True)
 command_listener.start()
+Points_updater = threading.Thread(target=Update_points)
+Points_updater.start()
 
 try:
     while True:
@@ -235,3 +247,4 @@ finally:
     Stop_Motor()
     GPIO.cleanup()
     command_listener.join()
+    Points_updater.join()
