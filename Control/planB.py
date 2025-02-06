@@ -65,7 +65,6 @@ def detect_strongest_circle(frame):
 
     return (0,0), 0, frame
 
-
 # Pin setup
 MOTOR_LEFT_ENA = 24
 MOTOR_LEFT_IN1 = 27
@@ -113,6 +112,26 @@ def Stop_Motor():
     pwm1.stop()
     pwm2.stop()
 
+# Global variable for motor control
+motor_running = True
+
+def listen_for_server_commands():
+    global motor_running
+    while True:
+        try:
+            command = client_socket.recv(1024).decode('utf-8')
+            if command == "STOP":
+                motor_running = False
+                Stop_Motor()
+            elif command == "START":
+                motor_running = True
+        except Exception as e:
+            print(f"Error receiving command: {e}")
+            break
+
+# Start a separate thread for listening to the server
+command_listener = Thread(target=listen_for_server_commands, daemon=True)
+command_listener.start()
 
 try:
     while True:
@@ -125,8 +144,9 @@ try:
         # Send the frame over the network
         client_socket.sendall(message_size + data_pic)
 
-        Drive_Motor(center_offset[0])
+        if motor_running: Drive_Motor(center_offset[0])
 
 finally:
     Stop_Motor()
     GPIO.cleanup()
+    command_listener.join()

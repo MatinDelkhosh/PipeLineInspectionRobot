@@ -35,73 +35,58 @@ current_frame = None
 def save_image():
     global current_frame
     if current_frame is not None:
-        # Generate a unique filename using the current timestamp
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"captured_image_{timestamp}.jpg"
         cv2.imwrite(filename, current_frame)
         print(f"Image saved as {filename}")
 
-# Create a button to save the image
+# Function to send commands to the client
+def send_command(command):
+    try:
+        client_socket.sendall(command.encode('utf-8'))
+        print(f"Command sent: {command}")
+    except Exception as e:
+        print(f"Error sending command: {e}")
+
+# Buttons
 save_button = Button(root, text="Save Image", command=save_image)
 save_button.pack()
-
-# Function to send data back to the sender
-def send_acknowledgment(message):
-    try:
-        # Send a message to the client (sender)
-        client_socket.sendall(message.encode('utf-8'))
-        print(f"Acknowledgment sent: {message}")
-    except Exception as e:
-        print(f"Error sending acknowledgment: {e}")
+stop_button = Button(root, text="Stop Motor", command=lambda: send_command("STOP"))
+stop_button.pack()
+start_button = Button(root, text="Start Motor", command=lambda: send_command("START"))
+start_button.pack()
 
 # Function to receive video frames in a separate thread
 def receive_video():
     global current_frame
     data = b""
     payload_size = struct.calcsize("L")
-
     try:
         while True:
-            # Retrieve message size
             while len(data) < payload_size:
                 packet = client_socket.recv(4096)
                 if not packet:
                     break
                 data += packet
-
             packed_msg_size = data[:payload_size]
             data = data[payload_size:]
             msg_size = struct.unpack("L", packed_msg_size)[0]
-
-            # Retrieve all data based on message size
             while len(data) < msg_size:
                 packet = client_socket.recv(4096)
                 if not packet:
                     break
                 data += packet
-
             frame_data = data[:msg_size]
             data = data[msg_size:]
-
-            # Deserialize the frame
             frame = pickle.loads(frame_data)
-            current_frame = frame  # Store the current frame for saving
-
-            # Convert the frame to RGB for display in Tkinter
+            current_frame = frame
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             img = Image.fromarray(frame_rgb)
             imgtk = ImageTk.PhotoImage(image=img)
-
-            # Update the video feed label in the main UI thread
             video_label.imgtk = imgtk
             video_label.configure(image=imgtk)
-
-            # Send acknowledgment to the sender after each frame is received
-            send_acknowledgment("Frame received")
-
     except Exception as e:
         print(f"Error: {e}")
-
     finally:
         client_socket.close()
         server_socket.close()
