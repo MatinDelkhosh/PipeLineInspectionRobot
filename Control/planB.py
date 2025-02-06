@@ -149,7 +149,7 @@ def read_imu():
 kf_gyro = KalmanFilter(0.01, 0.1)
 kf_acc_x = KalmanFilter(0.01, 0.1)
 kf_acc_y = KalmanFilter(0.01, 0.1)
-kf_x = KalmanFilter(0.01, 0.1)
+kf_x = KalmanFilter(0.01, 1)
 
 # Encoder
 encoderR = RotaryEncoder(25, 8, max_steps=0)
