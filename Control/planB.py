@@ -3,6 +3,7 @@ from time import sleep
 from picamera2 import Picamera2
 import cv2
 import numpy as np
+from threading import Thread
 
 # Set pin numbering mode
 GPIO.setmode(GPIO.BCM)  # Use GPIO numbers instead of physical pin numbers
@@ -74,57 +75,32 @@ pwm1.start(0)  # Start with 0% duty cycle
 pwm2 = GPIO.PWM(MOTOR_RIGHT_ENA, 1000) 
 pwm2.start(0)
 
-try:
+def Drive_Motor(Center):
+
     GPIO.output(MOTOR_RIGHT_IN1, GPIO.HIGH)
     GPIO.output(MOTOR_RIGHT_IN2, GPIO.LOW)
     GPIO.output(MOTOR_LEFT_IN1, GPIO.HIGH)
     GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)
+
+    leftspeed = 80 + Center/2
+    rightspeed = 80 - Center/2
+
+    leftspeed = min(leftspeed,100)
+    rightspeed = min(rightspeed,100)
+    leftspeed = max(leftspeed,0)
+    rightspeed = max(rightspeed,0)
+
+    pwm1.ChangeDutyCycle(leftspeed)  # Set speed to 50%
+    pwm2.ChangeDutyCycle(rightspeed)
+
+
+try:
     while True:
-        print('moving')
-        
-        # Capture frame from the camera
         frame = picam2.capture_array()
 
         center_offset, radius, output_frame = detect_strongest_circle(frame)
 
-        print('center:',center_offset[0]) 
-
-        leftspeed = 80 + center_offset[0]/2
-        rightspeed = 80 - center_offset[0]/2
-
-        print(1,leftspeed,rightspeed)
-
-        if rightspeed < 0:
-            GPIO.output(MOTOR_RIGHT_IN1, GPIO.LOW)
-            GPIO.output(MOTOR_RIGHT_IN2, GPIO.HIGH)
-            GPIO.output(MOTOR_LEFT_IN1, GPIO.HIGH)
-            GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)
-            rightspeed *= -1
-
-        elif leftspeed < 0:
-            GPIO.output(MOTOR_RIGHT_IN1, GPIO.HIGH)
-            GPIO.output(MOTOR_RIGHT_IN2, GPIO.LOW)
-            GPIO.output(MOTOR_LEFT_IN1, GPIO.LOW)
-            GPIO.output(MOTOR_LEFT_IN2, GPIO.HIGH)
-            leftspeed *= -1
-        
-        else:
-            GPIO.output(MOTOR_RIGHT_IN1, GPIO.HIGH)
-            GPIO.output(MOTOR_RIGHT_IN2, GPIO.LOW)
-            GPIO.output(MOTOR_LEFT_IN1, GPIO.HIGH)
-            GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)
-
-
-        leftspeed = min(leftspeed,100)
-        rightspeed = min(rightspeed,100)
-        leftspeed = max(leftspeed,0)
-        rightspeed = max(rightspeed,0)
-
-        print(2,leftspeed,rightspeed)
-
-        pwm1.ChangeDutyCycle(leftspeed)  # Set speed to 50%
-        pwm2.ChangeDutyCycle(rightspeed)
-        sleep(0.1)
+        Drive_Motor(center_offset[0])
 
 finally:
     pwm1.stop()
