@@ -211,7 +211,7 @@ def Update_points(k=1.5, dt=1):
             points_3d.append((x, y, 0))
             
             # Send the updated points_3d data to the server
-            send_data(points_3d, "points_3d")
+            send_data((x, y, 0), "points_3d")
 
             sleep(dt)  # 100ms delay for real-time update
             print(f'\rpoints calcd {acc_x:.2f}, {x*100:.2f}, {y*100:.2f}, {theta:.1f}, {w_enc}',end='')

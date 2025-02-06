@@ -35,11 +35,11 @@ root.title("Video Feed")
 
 # Create a frame for the layout
 frame = tk.Frame(root)
-frame.pack(side=tk.LEFT)
+frame.pack()
 
 # Create a label for the video feed
 video_label = tk.Label(frame)
-video_label.pack()
+video_label.pack(side=tk.LEFT)
 
 # Global variable to store the current frame
 current_frame = None
@@ -114,8 +114,7 @@ def receive_data():
                 video_label.configure(image=imgtk)
 
             elif data_type == 'points_3d':
-                points_3d = data_content
-                print('recieved points')
+                points_3d.append(data_content)
                 update_3d_plot()
 
     except Exception as e:
@@ -134,21 +133,65 @@ ax.set_xlabel('X')
 ax.set_ylabel('Y')
 ax.set_zlabel('Z')
 
-# Function to update the 3D plot with new points
-def update_3d_plot():
-    global points_3d
-    ax.clear()  # Clear previous plot
-    if points_3d:
-        points_3d_array = np.array(points_3d)
-        ax.scatter(points_3d_array[:, 0], points_3d_array[:, 1], points_3d_array[:, 2])
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    ax.set_zlabel('Z')
-    canvas.draw()
-
 # Embed the Matplotlib figure into Tkinter
 canvas = FigureCanvasTkAgg(fig, master=frame)  # Parent widget is button_frame
 canvas.get_tk_widget().pack(side=tk.LEFT)
+
+# Function to update the 3D plot with new points
+def update_3d_plot():
+    global points_3d
+    RADIUS = 0.15
+
+    if len(points_3d) >= 2:
+        ax.clear()
+        num_circle_points = 50  # Number of points to form a smooth circle
+        theta = np.linspace(0, 2 * np.pi, num_circle_points)
+
+        for i in range(len(points_3d) - 1):
+            start = np.array(points_3d[i])
+            end = np.array(points_3d[i + 1])
+
+            # Compute tangent vector (direction of the pipe)
+            tangent = end - start
+            tangent /= np.linalg.norm(tangent)  # Normalize
+
+            # Find an arbitrary normal vector that is perpendicular to the tangent
+            if np.allclose(tangent, [1, 0, 0]):  
+                normal = np.array([0, 1, 0])  # If tangent is along x-axis, choose y-axis as normal
+            else:
+                normal = np.cross(tangent, [1, 0, 0])  # Cross product with x-axis
+                normal /= np.linalg.norm(normal)  # Normalize
+
+            # Compute the binormal vector (perpendicular to both tangent and normal)
+            binormal = np.cross(tangent, normal)
+            binormal /= np.linalg.norm(binormal)
+
+            # Generate points for the circular cross-section
+            circle_points = np.array([
+                RADIUS * np.cos(theta)[:, None] * normal + 
+                RADIUS * np.sin(theta)[:, None] * binormal
+            ]).squeeze()
+
+            # Interpolate positions between start and end
+            for alpha in np.linspace(0, 1, 10):  # Adjust density of circles
+                position = start * (1 - alpha) + end * alpha
+                x_circle = position[0] + circle_points[:, 0]
+                y_circle = position[1] + circle_points[:, 1]
+                z_circle = position[2] + circle_points[:, 2]
+                ax.plot(x_circle, y_circle, z_circle, color="blue", alpha=0.3)
+
+        # Plot the main pipe path
+        xs, ys, zs = zip(*points_3d)
+        ax.plot(xs, ys, zs, color="red", linewidth=3, label="Pipe Path")
+        ax.scatter(xs, ys, zs, color="black", s=50, label="Points")
+
+        # Label and refresh
+        ax.set_xlabel("X")
+        ax.set_ylabel("Y")
+        ax.set_zlabel("Z")
+        ax.set_title("Pipe Profile with Defined Diameter")
+        ax.legend()
+        canvas.draw()
 
 # Start the Tkinter main loop
 root.mainloop()
