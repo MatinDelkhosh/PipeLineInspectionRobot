@@ -128,6 +128,7 @@ def listen_for_server_commands():
         except Exception as e:
             print(f"Error receiving command: {e}")
             break
+    listen_for_server_commands()
 
 # Start a separate thread for listening to the server
 command_listener = Thread(target=listen_for_server_commands, daemon=True)
@@ -144,7 +145,7 @@ try:
         # Send the frame over the network
         client_socket.sendall(message_size + data_pic)
 
-        if motor_running: Drive_Motor(center_offset[0])
+        if motor_running:Drive_Motor(center_offset[0])
 
 finally:
     Stop_Motor()
