@@ -65,7 +65,7 @@ def send_command(command):
 # Buttons
 # Create a frame for the buttons
 button_frame = tk.Frame(root)
-button_frame.pack(side=tk.LEFT)
+button_frame.pack()
 
 # Buttons for control
 save_button = Button(button_frame, text="Save Image", command=lambda: save_image())
@@ -105,16 +105,17 @@ def receive_data():
             data_type, data_content = pickle.loads(frame_data)  # Unpack the data
 
             if data_type == 'image':
-                frame = pickle.loads(data_content)
+                frame = data_content
                 current_frame = frame
                 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 img = Image.fromarray(frame_rgb)
                 imgtk = ImageTk.PhotoImage(image=img)
                 video_label.imgtk = imgtk
                 video_label.configure(image=imgtk)
-                
+
             elif data_type == 'points_3d':
                 points_3d = data_content
+                print('recieved points')
                 update_3d_plot()
 
     except Exception as e:
@@ -146,7 +147,7 @@ def update_3d_plot():
     canvas.draw()
 
 # Embed the Matplotlib figure into Tkinter
-canvas = FigureCanvasTkAgg(fig, master=button_frame)  # Parent widget is button_frame
+canvas = FigureCanvasTkAgg(fig, master=frame)  # Parent widget is button_frame
 canvas.get_tk_widget().pack(side=tk.LEFT)
 
 # Start the Tkinter main loop

@@ -18,6 +18,7 @@ client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host_ip = '192.168.171.250'  # Replace with your PC's IP address
 port = 9999
 client_socket.connect((host_ip, port))
+print('Connected!')
 
 # Initialize the camera
 picam2 = Picamera2()
@@ -208,14 +209,15 @@ def Update_points(k=1.5, dt=1):
             y = kf_y.update(y)
             theta = kf_theta.update(theta)
             points_3d.append((x, y, 0))
-        except Exception as e:
-            print(f"Error in Update_points: {e}")
+            
             # Send the updated points_3d data to the server
             send_data(points_3d, "points_3d")
 
             sleep(dt)  # 100ms delay for real-time update
             print(f'\rpoints calcd {acc_x:.2f}, {x*100:.2f}, {y*100:.2f}, {theta:.1f}, {w_enc}',end='')
-
+        
+        except Exception as e:
+            print(f"Error in Update_points: {e}")
             running = False  # Stop the loop if an error occurs
 
 # Global variable for motor control
