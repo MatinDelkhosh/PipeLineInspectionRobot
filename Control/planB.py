@@ -92,7 +92,7 @@ try:
         print('center:',center_offset[0]) 
 
         leftspeed = 80 + center_offset[0]/5
-        rightspeed = 80 + center_offset[0]/5
+        rightspeed = 80 - center_offset[0]/5
 
         print(leftspeed,rightspeed)
 
