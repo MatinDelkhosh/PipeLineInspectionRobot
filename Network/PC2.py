@@ -56,7 +56,6 @@ def save_image():
 # Function to send commands to the client
 def send_command(command):
     try:
-        print(f"Socket status: {client_socket}")
         client_socket.sendall(command.encode('utf-8'))
         print(f"Command sent: {command}")
     except Exception as e:
@@ -147,6 +146,7 @@ def update_3d_plot():
         num_circle_points = 50  # Number of points to form a smooth circle
         theta = np.linspace(0, 2 * np.pi, num_circle_points)
 
+        print('change data')
         for i in range(len(points_3d) - 1):
             start = np.array(points_3d[i])
 
@@ -155,6 +155,7 @@ def update_3d_plot():
                 distance = np.sqrt((start[0]-end[0])**2 + (start[1]-end[1])**2)
                 if distance > 0.1:
                     break
+                print('hey')
                 skip_counter += 1
             i += skip_counter
             
@@ -199,6 +200,7 @@ def update_3d_plot():
         ax.set_title("Pipe Profile with Defined Diameter")
         ax.legend()
         canvas.draw()
+        print('change canvas')
 
 # Start the Tkinter main loop
 root.mainloop()
