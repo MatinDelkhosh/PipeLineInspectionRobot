@@ -124,7 +124,7 @@ try:
 
         pwm1.ChangeDutyCycle(leftspeed)  # Set speed to 50%
         pwm2.ChangeDutyCycle(rightspeed)
-        sleep(0.01)
+        sleep(0.1)
 
 finally:
     pwm1.stop()
