@@ -90,7 +90,7 @@ try:
         center_offset, radius, output_frame = detect_strongest_circle(frame)
 
         leftspeed = 80 + center_offset[0]/5
-        rightspeed = 80 - center_offset[0]/5
+        rightspeed = 80 + center_offset[0]/5
 
         if rightspeed < 0:
             GPIO.output(MOTOR_RIGHT_IN1, GPIO.LOW)
