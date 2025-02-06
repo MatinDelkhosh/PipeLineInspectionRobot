@@ -24,6 +24,12 @@ picam2 = Picamera2()
 picam2.configure(picam2.create_preview_configuration(main={"format": 'XRGB8888', "size": (640, 480)}))
 picam2.start()
 
+#function to send data
+def send_data(data, data_type):
+        """Helper function to send data with a type identifier."""
+        data_packet = pickle.dumps((data_type, data))
+        message_size = struct.pack("L", len(data_packet))
+        client_socket.sendall(message_size + data_packet)
 
 def detect_strongest_circle(frame):
     frame = frame.copy()
@@ -167,7 +173,7 @@ def read_encoder(enc):
 # Calculate movement
 points_3d = []
 
-def Update_points(k=1, dt=1):
+def Update_points(k=1.5, dt=1):
     global points_3d
     running = True  # Control flag for stopping the loop
     x, y, theta = 0, 0, 0
@@ -202,12 +208,14 @@ def Update_points(k=1, dt=1):
             y = kf_y.update(y)
             theta = kf_theta.update(theta)
             points_3d.append((x, y, 0))
+        except Exception as e:
+            print(f"Error in Update_points: {e}")
+            # Send the updated points_3d data to the server
+            send_data(points_3d, "points_3d")
 
             sleep(dt)  # 100ms delay for real-time update
             print(f'\rpoints calcd {acc_x:.2f}, {x*100:.2f}, {y*100:.2f}, {theta:.1f}, {w_enc}',end='')
 
-        except Exception as e:
-            print(f"Error in Update_points: {e}")
             running = False  # Stop the loop if an error occurs
 
 # Global variable for motor control
@@ -241,10 +249,7 @@ try:
 
         center_offset, radius, output_frame = detect_strongest_circle(frame)
 
-        data_pic = pickle.dumps(output_frame)
-        message_size = struct.pack("L", len(data_pic))
-        # Send the frame over the network
-        client_socket.sendall(message_size + data_pic)
+        send_data(output_frame, "image")
 
         if motor_running: Drive_Motor(center_offset[0])
 

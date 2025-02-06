@@ -7,6 +7,10 @@ import tkinter as tk
 from tkinter import Button
 from PIL import Image, ImageTk
 import datetime
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
 
 # Socket setup
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -29,12 +33,17 @@ threading.Thread(target=accept_connection, daemon=True).start()
 root = tk.Tk()
 root.title("Video Feed")
 
+# Create a frame for the layout
+frame = tk.Frame(root)
+frame.pack(side=tk.LEFT)
+
 # Create a label for the video feed
-video_label = tk.Label(root)
+video_label = tk.Label(frame)
 video_label.pack()
 
 # Global variable to store the current frame
 current_frame = None
+points_3d = []
 
 # Function to save the current frame
 def save_image():
@@ -54,18 +63,23 @@ def send_command(command):
         print(f"Error sending command: {e}")
 
 # Buttons
-save_button = Button(root, text="Save Image", command=save_image)
+# Create a frame for the buttons
+button_frame = tk.Frame(root)
+button_frame.pack(side=tk.LEFT)
+
+# Buttons for control
+save_button = Button(button_frame, text="Save Image", command=lambda: save_image())
 save_button.pack()
 
-frame = tk.Frame(root)
-frame.pack()
-start_button = Button(frame, text="Start Motor", command=lambda: send_command("START"))
-start_button.pack(side=tk.LEFT, padx=5)  # Place button on the left with padding
-stop_button = Button(frame, text="Stop Motor", command=lambda: send_command("STOP"))
-stop_button.pack(side=tk.LEFT, padx=5) 
+start_button = Button(button_frame, text="Start Motor", command=lambda: send_command("START"))
+start_button.pack(side=tk.LEFT, padx=5)
+
+stop_button = Button(button_frame, text="Stop Motor", command=lambda: send_command("STOP"))
+stop_button.pack(side=tk.LEFT, padx=5)
+
 # Function to receive video frames in a separate thread
-def receive_video():
-    global current_frame, client_socket
+def receive_data():
+    global current_frame, client_socket, points_3d
     while client_socket is None: pass
     data = b""
     payload_size = struct.calcsize("L")
@@ -84,15 +98,25 @@ def receive_video():
                 if not packet:
                     break
                 data += packet
+
+            # Extract the frame data and the data type identifier
             frame_data = data[:msg_size]
             data = data[msg_size:]
-            frame = pickle.loads(frame_data)
-            current_frame = frame
-            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            img = Image.fromarray(frame_rgb)
-            imgtk = ImageTk.PhotoImage(image=img)
-            video_label.imgtk = imgtk
-            video_label.configure(image=imgtk)
+            data_type, data_content = pickle.loads(frame_data)  # Unpack the data
+
+            if data_type == 'image':
+                frame = pickle.loads(data_content)
+                current_frame = frame
+                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                img = Image.fromarray(frame_rgb)
+                imgtk = ImageTk.PhotoImage(image=img)
+                video_label.imgtk = imgtk
+                video_label.configure(image=imgtk)
+                
+            elif data_type == 'points_3d':
+                points_3d = data_content
+                update_3d_plot()
+
     except Exception as e:
         print(f"Error: {e}")
     finally:
@@ -100,7 +124,30 @@ def receive_video():
         server_socket.close()
 
 # Start video receiving in a separate thread
-threading.Thread(target=receive_video, daemon=True).start()
+threading.Thread(target=receive_data, daemon=True).start()
+
+# 3D plot setup
+fig = plt.Figure(figsize=(6, 4), dpi=100)
+ax = fig.add_subplot(111, projection='3d')
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+
+# Function to update the 3D plot with new points
+def update_3d_plot():
+    global points_3d
+    ax.clear()  # Clear previous plot
+    if points_3d:
+        points_3d_array = np.array(points_3d)
+        ax.scatter(points_3d_array[:, 0], points_3d_array[:, 1], points_3d_array[:, 2])
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+    canvas.draw()
+
+# Embed the Matplotlib figure into Tkinter
+canvas = FigureCanvasTkAgg(fig, master=button_frame)  # Parent widget is button_frame
+canvas.get_tk_widget().pack(side=tk.LEFT)
 
 # Start the Tkinter main loop
 root.mainloop()
