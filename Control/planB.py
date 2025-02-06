@@ -81,8 +81,6 @@ try:
     GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)
     while True:
         print('moving')
-        # Move motor forward
-
         
         # Capture frame from the camera
         frame = picam2.capture_array()
@@ -93,8 +91,6 @@ try:
 
         leftspeed = 80 + center_offset[0]
         rightspeed = 80 - center_offset[0]
-
-        print(leftspeed,rightspeed)
 
         '''if rightspeed < 0:
             GPIO.output(MOTOR_RIGHT_IN1, GPIO.LOW)
@@ -121,6 +117,8 @@ try:
         leftspeed = max(leftspeed, 0)
         rightspeed = min(leftspeed,100)
         rightspeed = max(rightspeed, 0)         
+
+        print(leftspeed,rightspeed)
 
         pwm1.ChangeDutyCycle(leftspeed)  # Set speed to 50%
         pwm2.ChangeDutyCycle(rightspeed)
