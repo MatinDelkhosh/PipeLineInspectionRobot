@@ -208,10 +208,11 @@ def Update_points(k=0.8, dt=1):
             x = kf_x.update(x)
             y = kf_y.update(y)
             theta = kf_theta.update(theta)
-            points_3d.append((x, y, 0))
+            point = (x, y, 0)
+            points_3d.append(point)
             
             # Send the updated points_3d data to the server
-            send_data((x, y, 0), "points_3d")
+            send_data(point, "points_3d")
 
             sleep(dt)  # 100ms delay for real-time update
             print(f'\rpoints calcd {acc_x:.2f}, {x*100:.2f}, {y*100:.2f}, {theta:.1f}, {w_enc}',end='')
