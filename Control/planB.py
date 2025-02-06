@@ -113,7 +113,8 @@ try:
             GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)
 
         leftspeed = min(leftspeed,100)
-        rightspeed = min(leftspeed,100)            
+        rightspeed = min(leftspeed,100)    
+        print(leftspeed,rightspeed)        
 
         pwm1.ChangeDutyCycle(leftspeed)  # Set speed to 50%
         pwm2.ChangeDutyCycle(rightspeed)
