@@ -161,13 +161,13 @@ wheel_diameter = 0.065
 
 def read_encoder(enc):
     angle = 360 / 334. * enc.steps
-    distance = angle * wheel_diameter # Convert angle to distance
+    distance = angle * wheel_diameter / 1000 # Convert angle to distance
     return distance
 
 # Calculate movement
 points_3d = []
 
-def Update_points(k=10, dt=1):
+def Update_points(k=20, dt=1):
     global points_3d
     running = True  # Control flag for stopping the loop
     x, y, theta = 0, 0, 0
