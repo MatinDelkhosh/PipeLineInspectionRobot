@@ -30,7 +30,8 @@ def send_data(data, data_type):
         """Helper function to send data with a type identifier."""
         data_packet = pickle.dumps((data_type, data))
         message_size = struct.pack("L", len(data_packet))
-        client_socket.sendall(message_size + data_packet)
+        try: client_socket.sendall(message_size + data_packet)
+        except: print('connection lost')
 
 def detect_strongest_circle(frame):
     frame = frame.copy()

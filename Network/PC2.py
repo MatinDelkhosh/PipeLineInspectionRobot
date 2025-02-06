@@ -56,6 +56,7 @@ def save_image():
 # Function to send commands to the client
 def send_command(command):
     try:
+        print(f"Socket status: {client_socket}")
         client_socket.sendall(command.encode('utf-8'))
         print(f"Command sent: {command}")
     except Exception as e:
