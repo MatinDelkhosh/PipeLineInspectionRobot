@@ -116,7 +116,7 @@ try:
 
 
         leftspeed = min(leftspeed,100)
-        rightspeed = min(leftspeed,100)
+        rightspeed = min(rightspeed,100)
 
         print(2,leftspeed,rightspeed)
 
