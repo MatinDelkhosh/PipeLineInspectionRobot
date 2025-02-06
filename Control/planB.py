@@ -149,6 +149,7 @@ def read_imu():
 kf_gyro = KalmanFilter(0.01, 0.1)
 kf_acc_x = KalmanFilter(0.01, 0.1)
 kf_acc_y = KalmanFilter(0.01, 0.1)
+kf_x = KalmanFilter(0.01, 0.1)
 
 # Encoder
 encoderR = RotaryEncoder(25, 8, max_steps=0)
@@ -162,12 +163,12 @@ def read_encoder(enc):
     return distance
 
 # Calculate movement
-x, y, theta = 0, 0, 0
 points_3d = []
 
 def Update_points(k=10, dt=1):
-    global x, y, theta, points_3d
+    global points_3d
     running = True  # Control flag for stopping the loop
+    x, y, theta = 0, 0, 0
     
     while running:
         try:
@@ -179,8 +180,8 @@ def Update_points(k=10, dt=1):
 
             gyro_z_raw, acc_x_raw, acc_y_raw = read_imu()
             gyro_z = kf_gyro.update(gyro_z_raw / 131.0 )
-            acc_x = kf_acc_x.update(acc_x_raw / 16384.0 )
-            acc_y = kf_acc_y.update(acc_y_raw / 16384.0 )
+            acc_x = kf_acc_x.update(acc_x_raw / 16384.0 * 9.78)
+            acc_y = kf_acc_y.update(acc_y_raw / 16384.0 * 9.78)
 
             # Compute weight factors
             w_imu = abs(gyro_z) / (abs(gyro_z) + k) if abs(gyro_z) + k != 0 else 0.5
@@ -190,13 +191,13 @@ def Update_points(k=10, dt=1):
             imu_dx = acc_x * (dt ** 2) / 2
             imu_dy = acc_y * (dt ** 2) / 2
 
-            # Thread-safe position update
-            with threading.Lock():
-                x += w_enc * encoder_d * cos(theta) + w_imu * imu_dx
-                y += w_enc * encoder_d * sin(theta) + w_imu * imu_dy
-                theta += w_enc * encoder_dtheta + w_imu * (gyro_z * dt)
+            
+            x += w_enc * encoder_d * cos(theta) + w_imu * imu_dx
+            y += w_enc * encoder_d * sin(theta) + w_imu * imu_dy
+            theta += w_enc * encoder_dtheta + w_imu * (gyro_z * dt)
 
-                points_3d.append((x, y, 0))
+            x = kf_x.update(x)
+            points_3d.append((x, y, 0))
 
             sleep(0.5)  # 100ms delay for real-time update
             print(f'\rpoints calcd {acc_x:.2f}, {x:.1f}',end='')
