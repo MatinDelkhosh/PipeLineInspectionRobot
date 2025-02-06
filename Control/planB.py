@@ -209,7 +209,7 @@ def Update_points(k=0.8, dt=1):
             x = kf_x.update(x)
             y = kf_y.update(y)
             theta = kf_theta.update(theta)
-            point = np.array((x, y, 0))
+            point = [x,y,0]
             points_3d.append(point)
             
             # Send the updated points_3d data to the server
