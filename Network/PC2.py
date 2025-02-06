@@ -17,8 +17,13 @@ server_socket.listen(5)
 print(f"Listening on {host_ip}:{port}")
 
 # Accept a connection
-client_socket, addr = server_socket.accept()
-print(f"Connection from: {addr}")
+client_socket, addr = None, None
+def accept_connection():
+    global client_socket, addr
+    client_socket, addr = server_socket.accept()
+    print(f"Connection from: {addr}")
+
+threading.Thread(target=accept_connection, daemon=True).start()
 
 # Tkinter setup
 root = tk.Tk()
@@ -51,14 +56,15 @@ def send_command(command):
 # Buttons
 save_button = Button(root, text="Save Image", command=save_image)
 save_button.pack()
-stop_button = Button(root, text="Stop Motor", command=lambda: send_command("STOP"))
-stop_button.pack()
 start_button = Button(root, text="Start Motor", command=lambda: send_command("START"))
 start_button.pack()
+stop_button = Button(root, text="Stop Motor", command=lambda: send_command("STOP"))
+stop_button.pack(side=tk.LEFT, padx=5)
 
 # Function to receive video frames in a separate thread
 def receive_video():
-    global current_frame
+    global current_frame, client_socket
+    while client_socket is None: pass
     data = b""
     payload_size = struct.calcsize("L")
     try:

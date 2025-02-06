@@ -1,4 +1,5 @@
 import RPi.GPIO as GPIO
+from gpiozero import RotaryEncoder
 from time import sleep
 from picamera2 import Picamera2
 import cv2
@@ -7,6 +8,7 @@ from threading import Thread
 import socket
 import pickle
 import struct
+import smbus2
 
 # Set pin numbering mode
 GPIO.setmode(GPIO.BCM)  # Use GPIO numbers instead of physical pin numbers
@@ -111,6 +113,87 @@ def Stop_Motor():
     GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)
     pwm1.ChangeDutyCycle(0)
     pwm2.ChangeDutyCycle(0)
+
+# Kalman Filter
+class KalmanFilter:
+    def __init__(self, process_variance, measurement_variance):
+        self.process_variance = process_variance
+        self.measurement_variance = measurement_variance
+        self.estimate = 0
+        self.error_estimate = 1
+
+    def update(self, measurement):
+        kalman_gain = self.error_estimate / (self.error_estimate + self.measurement_variance)
+        self.estimate = self.estimate + kalman_gain * (measurement - self.estimate)
+        self.error_estimate = (1 - kalman_gain) * self.error_estimate + self.process_variance
+        return self.estimate
+
+# IMU
+
+# MPU6050 Registers
+MPU6050_ADDR = 0x68
+PWR_MGMT_1 = 0x6B
+ACCEL_XOUT_H = 0x3B
+GYRO_XOUT_H = 0x43
+
+bus = smbus2.SMBus(1)
+# Wake up MPU6050
+bus.write_byte_data(MPU6050_ADDR, PWR_MGMT_1, 0)
+
+def read_imu():
+    gyro_z = bus.read_byte_data(MPU6050_ADDR, 0x47) - 128
+    acc_x = bus.read_byte_data(MPU6050_ADDR, 0x3B) - 128
+    acc_y = bus.read_byte_data(MPU6050_ADDR, 0x3D) - 128
+    return gyro_z, acc_x, acc_y
+
+kf_gyro = KalmanFilter(0.01, 0.1)
+kf_acc_x = KalmanFilter(0.01, 0.1)
+kf_acc_y = KalmanFilter(0.01, 0.1)
+
+# Encoder
+encoderR = RotaryEncoder(25, 8, max_steps=0)
+encoderL = RotaryEncoder(9, 11, max_steps=0)
+
+wheel_diameter = 0.06
+
+def read_encoder(enc):
+    angle = 360 / 334. * enc.steps
+    distance = angle * wheel_diameter # Convert angle to distance
+    return distance
+
+# Calculate movement
+x, y, theta = 0, 0, 0
+points_3d = []
+
+
+def Update_points():
+    k = 10
+    dt = 1
+    global x, y, theta, points_3d
+    while True:
+        encoderR_d = read_encoder(encoderR)
+        encoderL_d= read_encoder(encoderL)
+        encoder_d = (encoderR_d + encoderL_d) / 2
+
+        encoder_dtheta = (encoderR_d - encoderL_d)
+
+        gyro_z_raw, acc_x_raw, acc_y_raw = read_imu()
+        gyro_z = kf_gyro.update(gyro_z_raw)
+        acc_x = kf_acc_x.update(acc_x_raw)
+        acc_y = kf_acc_y.update(acc_y_raw)
+
+        w_imu = abs(gyro_z) / (abs(gyro_z) + k)
+        w_enc = 1 - w_imu
+
+        imu_dx = acc_x * dt ** 2 / 2
+        imu_dy = acc_y * dt ** 2 / 2
+
+        x += w_enc * encoder_d * cos(theta) + w_imu * imu_dx
+        y += w_enc * encoder_d * sin(theta) + w_imu * imu_dy
+        theta += w_enc * encoder_dtheta + w_imu * (gyro_z * dt)
+
+        points_3d.append((x, y, 0))
+        time.sleep(0.1)
 
 # Global variable for motor control
 motor_running = True
