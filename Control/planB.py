@@ -178,8 +178,7 @@ def Update_points(k=10, dt=1):
             encoderR_d = read_encoder(encoderR)
             encoderL_d = read_encoder(encoderL)
             encoder_d = (encoderR_d + encoderL_d) / 2
-            if encoder_d != 0:
-                encoder_dtheta = asin((encoderR_d - encoderL_d) / encoder_d) / 3.141
+            encoder_dtheta = asin((encoderR_d - encoderL_d) / encoder_d) / 3.141 if encoder_d != 0 else 0
 
             gyro_z_raw, acc_x_raw, acc_y_raw = read_imu()
             gyro_z = kf_gyro.update(gyro_z_raw / 131.0 )
