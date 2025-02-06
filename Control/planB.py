@@ -206,7 +206,7 @@ def Update_points(k=10, dt=1):
             running = False  # Stop the loop if an error occurs
 
 # Global variable for motor control
-motor_running = True
+motor_running = False
 
 def listen_for_server_commands():
     global motor_running
