@@ -124,6 +124,7 @@ def listen_for_server_commands():
                 motor_running = False
                 Stop_Motor()
             elif command == "START":
+                print('lets start')
                 motor_running = True
         except Exception as e:
             print(f"Error receiving command: {e}")
@@ -145,7 +146,7 @@ try:
         # Send the frame over the network
         client_socket.sendall(message_size + data_pic)
 
-        if motor_running:Drive_Motor(center_offset[0])
+        if motor_running: Drive_Motor(center_offset[0])
 
 finally:
     Stop_Motor()
