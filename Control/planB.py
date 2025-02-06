@@ -117,7 +117,10 @@ motor_running = True
 
 def listen_for_server_commands():
     global motor_running
+    counter = 1
     while True:
+        print(f'\rListening: {counter}')
+        if counter<1000:counter+=1
         try:
             command = client_socket.recv(1024).decode('utf-8')
             if command == "STOP":
