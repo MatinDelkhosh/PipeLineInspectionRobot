@@ -93,8 +93,8 @@ def Drive_Motor(Center):
     GPIO.output(MOTOR_LEFT_IN1, GPIO.HIGH)
     GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)
 
-    leftspeed = 80 + Center/2
-    rightspeed = 80 - Center/2
+    leftspeed = 80 + Center
+    rightspeed = 80 - Center
 
     leftspeed = min(leftspeed,100)
     rightspeed = min(rightspeed,100)
