@@ -109,12 +109,12 @@ try:
             GPIO.output(MOTOR_LEFT_IN1, GPIO.LOW)
             GPIO.output(MOTOR_LEFT_IN2, GPIO.HIGH)
             leftspeed *= -1
-
-        else:
+        '''
+        if True:
             GPIO.output(MOTOR_RIGHT_IN1, GPIO.HIGH)
             GPIO.output(MOTOR_RIGHT_IN2, GPIO.LOW)
             GPIO.output(MOTOR_LEFT_IN1, GPIO.HIGH)
-            GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)'''
+            GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)
 
 
         leftspeed = min(leftspeed,100)
