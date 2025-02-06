@@ -36,7 +36,7 @@ def main():
     # Load the model
     interpreter = load_model(model_path)
     
-    image = 
+    image = sys.argv[1]
     # Run inference
     output_data = run_inference(interpreter, image)
     
