@@ -151,14 +151,14 @@ def update_3d_plot():
             start = np.array(points_3d[i])
 
             skip_counter = 0
-            for j,end in enumerate(points_3d[i:]):
+            '''for j,end in enumerate(points_3d[i:]):
                 distance = np.sqrt((start[0]-end[0])**2 + (start[1]-end[1])**2)
                 if distance > 0.1:
                     print('yo')
                     break
                 print('hey')
                 skip_counter += 1
-            i += skip_counter
+            i += skip_counter'''
             print('fun')
             
             # Compute tangent vector (direction of the pipe)
