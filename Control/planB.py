@@ -89,8 +89,34 @@ try:
 
         center_offset, radius, output_frame = detect_strongest_circle(frame)
 
-        pwm1.ChangeDutyCycle(40 + center_offset[0]/50)  # Set speed to 50%
-        pwm2.ChangeDutyCycle(40 - center_offset[0]/50)
+        leftspeed = 80 + center_offset[0]/5
+        rightspeed = 80 - center_offset[0]/5
+
+        if rightspeed < 0:
+            GPIO.output(MOTOR_RIGHT_IN1, GPIO.LOW)
+            GPIO.output(MOTOR_RIGHT_IN2, GPIO.HIGH)
+            GPIO.output(MOTOR_LEFT_IN1, GPIO.HIGH)
+            GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)
+            rightspeed *= -1
+
+        elif leftspeed < 0:
+            GPIO.output(MOTOR_RIGHT_IN1, GPIO.HIGH)
+            GPIO.output(MOTOR_RIGHT_IN2, GPIO.LOW)
+            GPIO.output(MOTOR_LEFT_IN1, GPIO.LOW)
+            GPIO.output(MOTOR_LEFT_IN2, GPIO.HIGH)
+            leftspeed *= -1
+
+        else:
+            GPIO.output(MOTOR_RIGHT_IN1, GPIO.HIGH)
+            GPIO.output(MOTOR_RIGHT_IN2, GPIO.LOW)
+            GPIO.output(MOTOR_LEFT_IN1, GPIO.HIGH)
+            GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)
+
+        leftspeed = max(leftspeed,100)
+        rightspeed = max(leftspeed,100)            
+
+        pwm1.ChangeDutyCycle(leftspeed)  # Set speed to 50%
+        pwm2.ChangeDutyCycle(rightspeed)
         sleep(0.1)
 finally:
     pwm1.stop()
