@@ -116,11 +116,14 @@ try:
 
 
         leftspeed = min(leftspeed,100)
-        leftspeed = max(leftspeed, 0)
         rightspeed = min(leftspeed,100)
-        rightspeed = max(rightspeed, 0)         
 
         print(2,leftspeed,rightspeed)
+
+        leftspeed = max(leftspeed, 0)
+        rightspeed = max(rightspeed, 0)         
+
+        print(3,leftspeed,rightspeed)
 
         pwm1.ChangeDutyCycle(leftspeed)  # Set speed to 50%
         pwm2.ChangeDutyCycle(rightspeed)
