@@ -9,7 +9,7 @@ import socket
 import pickle
 import struct
 import smbus2
-from math import cos,sin
+from math import cos,sin,asin
 
 # Set pin numbering mode
 GPIO.setmode(GPIO.BCM)  # Use GPIO numbers instead of physical pin numbers
@@ -178,7 +178,7 @@ def Update_points(k=10, dt=1):
             encoderR_d = read_encoder(encoderR)
             encoderL_d = read_encoder(encoderL)
             encoder_d = (encoderR_d + encoderL_d) / 2
-            encoder_dtheta = (encoderR_d - encoderL_d)
+            encoder_dtheta = asin((encoderR_d - encoderL_d) / encoder_d) / 3.141
 
             gyro_z_raw, acc_x_raw, acc_y_raw = read_imu()
             gyro_z = kf_gyro.update(gyro_z_raw / 131.0 )
@@ -204,7 +204,7 @@ def Update_points(k=10, dt=1):
             points_3d.append((x, y, 0))
 
             sleep(0.5)  # 100ms delay for real-time update
-            print(f'\rpoints calcd {acc_x:.2f}, {x:.1f}, {encoder_d}',end='')
+            print(f'\rpoints calcd {acc_x:.2f}, {x:.1f}, {encoder_d}, {encoder_dtheta}, {w_enc}',end='')
 
         except Exception as e:
             print(f"Error in Update_points: {e}")
