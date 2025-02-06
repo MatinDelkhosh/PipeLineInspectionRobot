@@ -149,13 +149,15 @@ def read_imu():
 kf_gyro = KalmanFilter(0.01, 0.1)
 kf_acc_x = KalmanFilter(0.01, 0.1)
 kf_acc_y = KalmanFilter(0.01, 0.1)
-kf_x = KalmanFilter(0.01, 1)
+kf_x = KalmanFilter(0.01, 10)
+kf_y = KalmanFilter(0.01, 10)
+kf_theta = KalmanFilter(0.01, 10)
 
 # Encoder
 encoderR = RotaryEncoder(25, 8, max_steps=0)
 encoderL = RotaryEncoder(9, 11, max_steps=0)
 
-wheel_diameter = 0.06
+wheel_diameter = 0.065
 
 def read_encoder(enc):
     angle = 360 / 334. * enc.steps
@@ -197,10 +199,12 @@ def Update_points(k=10, dt=1):
             theta += w_enc * encoder_dtheta + w_imu * (gyro_z * dt)
 
             x = kf_x.update(x)
+            y = kf_y.update(y)
+            theta = kf_theta.update(theta)
             points_3d.append((x, y, 0))
 
             sleep(0.5)  # 100ms delay for real-time update
-            print(f'\rpoints calcd {acc_x:.2f}, {x:.1f}',end='')
+            print(f'\rpoints calcd {acc_x:.2f}, {x:.1f}, {encoder_d}',end='')
 
         except Exception as e:
             print(f"Error in Update_points: {e}")
