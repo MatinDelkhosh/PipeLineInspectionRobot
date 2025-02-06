@@ -4,9 +4,17 @@ from picamera2 import Picamera2
 import cv2
 import numpy as np
 from threading import Thread
+import socket
+import pickle
+import struct
 
 # Set pin numbering mode
 GPIO.setmode(GPIO.BCM)  # Use GPIO numbers instead of physical pin numbers
+
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+host_ip = '192.168.171.250'  # Replace with your PC's IP address
+port = 9999
+client_socket.connect((host_ip, port))
 
 # Initialize the camera
 picam2 = Picamera2()
@@ -15,6 +23,7 @@ picam2.start()
 
 
 def detect_strongest_circle(frame):
+    frame = frame.copy()
     # Convert to grayscale
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -48,6 +57,9 @@ def detect_strongest_circle(frame):
         # Calculate position relative to center
         relative_x = x - center_x
         relative_y = y - center_y
+
+        frame = cv2.circle(frame, (x, y), r, (0, 255, 0), 4)
+        frame = cv2.circle(frame, (x, y), 2, (0, 0, 255), 3)
 
         return (relative_x, relative_y), r, frame
 
@@ -93,6 +105,14 @@ def Drive_Motor(Center):
     pwm1.ChangeDutyCycle(leftspeed)  # Set speed to 50%
     pwm2.ChangeDutyCycle(rightspeed)
 
+def Stop_Motor():
+    GPIO.output(MOTOR_RIGHT_IN1, GPIO.LOW)
+    GPIO.output(MOTOR_RIGHT_IN2, GPIO.LOW)
+    GPIO.output(MOTOR_LEFT_IN1, GPIO.LOW)
+    GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)
+    pwm1.stop()
+    pwm2.stop()
+
 
 try:
     while True:
@@ -100,9 +120,13 @@ try:
 
         center_offset, radius, output_frame = detect_strongest_circle(frame)
 
+        data_pic = pickle.dumps(output_frame)
+        message_size = struct.pack("L", len(data_pic))
+        # Send the frame over the network
+        client_socket.sendall(message_size + data_pic)
+
         Drive_Motor(center_offset[0])
 
 finally:
-    pwm1.stop()
-    pwm2.stop()
+    Stop_Motor()
     GPIO.cleanup()
