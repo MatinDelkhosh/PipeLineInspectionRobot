@@ -90,7 +90,8 @@ try:
         center_offset, radius, output_frame = detect_strongest_circle(frame)
 
         print('center:',center_offset[0])
-        
+        print(leftspeed,rightspeed)   
+
         leftspeed = 80 + center_offset[0]/5
         rightspeed = 80 + center_offset[0]/5
 
@@ -115,8 +116,7 @@ try:
             GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)
 
         leftspeed = min(leftspeed,100)
-        rightspeed = min(leftspeed,100)    
-        print(leftspeed,rightspeed)        
+        rightspeed = min(leftspeed,100)         
 
         pwm1.ChangeDutyCycle(leftspeed)  # Set speed to 50%
         pwm2.ChangeDutyCycle(rightspeed)
