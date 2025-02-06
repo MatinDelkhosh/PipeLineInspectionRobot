@@ -119,7 +119,6 @@ def listen_for_server_commands():
     global motor_running
     counter = 1
     while True:
-        print(f'\rListening: {counter}',end='')
         if counter<1000:counter+=1
         try:
             command = client_socket.recv(1024).decode('utf-8')
@@ -127,7 +126,6 @@ def listen_for_server_commands():
                 motor_running = False
                 Stop_Motor()
             elif command == "START":
-                print('lets start')
                 motor_running = True
         except Exception as e:
             print(f"Error receiving command: {e}")
@@ -148,7 +146,7 @@ try:
         # Send the frame over the network
         client_socket.sendall(message_size + data_pic)
 
-        if motor_running: Drive_Motor(center_offset[0]); print('Motor running')
+        if motor_running: Drive_Motor(center_offset[0])
 
 finally:
     Stop_Motor()
