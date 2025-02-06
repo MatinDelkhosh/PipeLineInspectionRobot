@@ -115,13 +115,13 @@ try:
             GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)'''
 
 
-        leftspeed = max(leftspeed,100)
-        rightspeed = max(leftspeed,100)
+        leftspeed = min(leftspeed,100)
+        rightspeed = min(leftspeed,100)
 
         print(2,leftspeed,rightspeed)
 
-        leftspeed = min(leftspeed, 0)
-        rightspeed = min(rightspeed, 0)         
+        leftspeed = max(leftspeed, 0)
+        rightspeed = max(rightspeed, 0)         
 
         print(3,leftspeed,rightspeed)
 
