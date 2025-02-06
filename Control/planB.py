@@ -199,7 +199,7 @@ def Update_points(k=10, dt=1):
                 points_3d.append((x, y, 0))
 
             sleep(0.1)  # 100ms delay for real-time update
-            print('\rpoints calcd {x}',end='')
+            print(f'\rpoints calcd {x}',end='')
 
         except Exception as e:
             print(f"Error in Update_points: {e}")
