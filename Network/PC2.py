@@ -113,7 +113,7 @@ def receive_data():
                 video_label.configure(image=imgtk)
 
             elif data_type == 'points_3d':
-                points_3d.append(data_content)
+                points_3d = data_content
                 update_3d_plot()
 
     except Exception as e:
@@ -154,10 +154,12 @@ def update_3d_plot():
             for j,end in enumerate(points_3d[i:]):
                 distance = np.sqrt((start[0]-end[0])**2 + (start[1]-end[1])**2)
                 if distance > 0.1:
+                    print('yo')
                     break
                 print('hey')
                 skip_counter += 1
             i += skip_counter
+            print('fun')
             
             # Compute tangent vector (direction of the pipe)
             tangent = end - start
