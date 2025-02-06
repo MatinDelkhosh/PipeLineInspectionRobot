@@ -101,8 +101,8 @@ def receive_data():
             # Extract the frame data and the data type identifier
             frame_data = data[:msg_size]
             data = data[msg_size:]
-            try: data_type, data_content = pickle.loads(frame_data)  # Unpack the data
-            except: pass
+            data_type, data_content = pickle.loads(frame_data)  # Unpack the data
+            
             if data_type == 'image':
                 frame = data_content
                 current_frame = frame
@@ -146,21 +146,15 @@ def update_3d_plot():
         num_circle_points = 50  # Number of points to form a smooth circle
         theta = np.linspace(0, 2 * np.pi, num_circle_points)
 
-        print('change data')
         for i in range(len(points_3d) - 1):
             start = np.array(points_3d[i])
             end = np.array(points_3d[i+1])
 
-            skip_counter = 0
-            '''for j,end in enumerate(points_3d[i:]):
+            for j,end in enumerate(points_3d[i:]):
                 distance = np.sqrt((start[0]-end[0])**2 + (start[1]-end[1])**2)
                 if distance > 0.1:
-                    print('yo')
                     break
-                print('hey')
-                skip_counter += 1
-            i += skip_counter'''
-            print('fun')
+            i += j
             
             # Compute tangent vector (direction of the pipe)
             tangent = end - start

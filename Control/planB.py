@@ -10,6 +10,8 @@ import pickle
 import struct
 import smbus2
 from math import cos,sin,atan2
+import subprocess
+import tempfile
 
 # Set pin numbering mode
 GPIO.setmode(GPIO.BCM)  # Use GPIO numbers instead of physical pin numbers
@@ -30,8 +32,10 @@ def send_data(data, data_type):
         """Helper function to send data with a type identifier."""
         data_packet = pickle.dumps((data_type, data))
         message_size = struct.pack("L", len(data_packet))
-        try: client_socket.sendall(message_size + data_packet)
-        except: print('connection lost')
+
+        with threading.Lock():
+            try: client_socket.sendall(message_size + data_packet)
+            except: print('\rconnection lost', end='')
 
 def detect_strongest_circle(frame):
     frame = frame.copy()
@@ -241,11 +245,36 @@ def listen_for_server_commands():
             print(f"Error receiving command: {e}")
             break
 
+# Call the virtual environment script using subprocess and pass the image file
+def run_inference(image, location):
+
+    try:
+        while True:
+            # Run subprocess and pass the image path to the script
+            result = subprocess.run(
+                ['python3', 'Detection/Detection.py', image],
+                capture_output=True,
+                text=True)
+            print(f'problem {result.stdout} at location {location}')
+    except:
+        print("Error running Neural Net")
+
+    
+# Save the captured image as a temporary file
+def save_image(frame):
+    _, temp_path = tempfile.mkstemp(suffix='.jpg')
+    cv2.imwrite(temp_path, frame)
+    return temp_path
+
 # Start a separate thread for listening to the server
 command_listener = threading.Thread(target=listen_for_server_commands, daemon=True)
 command_listener.start()
 Points_updater = threading.Thread(target=Update_points)
 Points_updater.start()
+
+frame = picam2.capture_array()
+NeuralNetThread = threading.Thread(target=run_inference,args=(frame,points_3d[-1]))
+NeuralNetThread.start()
 
 try:
     while True:
@@ -262,3 +291,4 @@ finally:
     GPIO.cleanup()
     command_listener.join()
     Points_updater.join()
+    NeuralNetThread.join()

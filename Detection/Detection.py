@@ -30,18 +30,13 @@ def run_inference(interpreter, image):
     return output_data
 
 def main():
-    # The model path (adjust path if necessary)
+    # Load the model
     model_path = 'Detection/bump_detector.tflite'
     
     # Load the model
     interpreter = load_model(model_path)
     
-    # Get the image path from the arguments
-    image_path = sys.argv[1]
-    
-    # Read the image using an external method (to be implemented in main6.py)
-    image = ...  # Placeholder for image loading logic
-    
+    image = 
     # Run inference
     output_data = run_inference(interpreter, image)
     
