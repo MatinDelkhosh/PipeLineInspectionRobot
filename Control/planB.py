@@ -178,9 +178,9 @@ def Update_points(k=10, dt=1):
             encoder_dtheta = (encoderR_d - encoderL_d)
 
             gyro_z_raw, acc_x_raw, acc_y_raw = read_imu()
-            gyro_z = kf_gyro.update(gyro_z_raw)
-            acc_x = kf_acc_x.update(acc_x_raw)
-            acc_y = kf_acc_y.update(acc_y_raw)
+            gyro_z = kf_gyro.update(gyro_z_raw / 131.0 )
+            acc_x = kf_acc_x.update(acc_x_raw / 16384.0 )
+            acc_y = kf_acc_y.update(acc_y_raw / 16384.0 )
 
             # Compute weight factors
             w_imu = abs(gyro_z) / (abs(gyro_z) + k) if abs(gyro_z) + k != 0 else 0.5
@@ -198,7 +198,7 @@ def Update_points(k=10, dt=1):
 
                 points_3d.append((x, y, 0))
 
-            sleep(0.1)  # 100ms delay for real-time update
+            sleep(0.5)  # 100ms delay for real-time update
             print(f'\rpoints calcd {acc_x:.2f}, {x:.1f}',end='')
 
         except Exception as e:
