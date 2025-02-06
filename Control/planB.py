@@ -109,8 +109,8 @@ def Stop_Motor():
     GPIO.output(MOTOR_RIGHT_IN2, GPIO.LOW)
     GPIO.output(MOTOR_LEFT_IN1, GPIO.LOW)
     GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)
-    pwm1.stop()
-    pwm2.stop()
+    pwm1.ChangeDutyCycle(0)
+    pwm2.ChangeDutyCycle(0)
 
 # Global variable for motor control
 motor_running = True
@@ -119,7 +119,7 @@ def listen_for_server_commands():
     global motor_running
     counter = 1
     while True:
-        print(f'\rListening: {counter}')
+        print(f'\rListening: {counter}',end='')
         if counter<1000:counter+=1
         try:
             command = client_socket.recv(1024).decode('utf-8')
@@ -148,7 +148,7 @@ try:
         # Send the frame over the network
         client_socket.sendall(message_size + data_pic)
 
-        if motor_running: Drive_Motor(center_offset[0])
+        if motor_running: Drive_Motor(center_offset[0]); print('Motor running')
 
 finally:
     Stop_Motor()
