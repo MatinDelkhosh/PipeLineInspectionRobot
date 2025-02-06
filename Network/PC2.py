@@ -56,11 +56,13 @@ def send_command(command):
 # Buttons
 save_button = Button(root, text="Save Image", command=save_image)
 save_button.pack()
-start_button = Button(root, text="Start Motor", command=lambda: send_command("START"))
-start_button.pack()
-stop_button = Button(root, text="Stop Motor", command=lambda: send_command("STOP"))
-stop_button.pack(side=tk.LEFT, padx=5)
 
+frame = tk.Frame(root)
+frame.pack()
+start_button = Button(frame, text="Start Motor", command=lambda: send_command("START"))
+start_button.pack(side=tk.LEFT, padx=5)  # Place button on the left with padding
+stop_button = Button(frame, text="Stop Motor", command=lambda: send_command("STOP"))
+stop_button.pack(side=tk.LEFT, padx=5) 
 # Function to receive video frames in a separate thread
 def receive_video():
     global current_frame, client_socket
