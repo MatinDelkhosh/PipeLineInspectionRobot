@@ -101,8 +101,8 @@ def receive_data():
             # Extract the frame data and the data type identifier
             frame_data = data[:msg_size]
             data = data[msg_size:]
-            data_type, data_content = pickle.loads(frame_data)  # Unpack the data
-
+            try: data_type, data_content = pickle.loads(frame_data)  # Unpack the data
+            except: pass
             if data_type == 'image':
                 frame = data_content
                 current_frame = frame
@@ -113,7 +113,7 @@ def receive_data():
                 video_label.configure(image=imgtk)
 
             elif data_type == 'points_3d':
-                points_3d = data_content
+                points_3d.append(data_content)
                 update_3d_plot()
 
     except Exception as e:
@@ -149,6 +149,7 @@ def update_3d_plot():
         print('change data')
         for i in range(len(points_3d) - 1):
             start = np.array(points_3d[i])
+            end = np.array(points_3d[i+1])
 
             skip_counter = 0
             '''for j,end in enumerate(points_3d[i:]):
