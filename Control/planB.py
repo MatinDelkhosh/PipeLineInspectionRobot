@@ -174,7 +174,7 @@ def read_encoder(enc):
 # Calculate movement
 points_3d = []
 
-def Update_points(k=1.5, dt=1):
+def Update_points(k=0.8, dt=1):
     global points_3d
     running = True  # Control flag for stopping the loop
     x, y, theta = 0, 0, 0

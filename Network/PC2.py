@@ -9,7 +9,6 @@ from PIL import Image, ImageTk
 import datetime
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 
 # Socket setup
@@ -149,8 +148,15 @@ def update_3d_plot():
 
         for i in range(len(points_3d) - 1):
             start = np.array(points_3d[i])
-            end = np.array(points_3d[i + 1])
 
+            skip_counter = 0
+            for j,end in enumerate(points_3d[i:]):
+                distance = np.sqrt((start[0]-end[0])**2 + (start[1]-end[1])**2)
+                if distance > 0.1:
+                    break
+                skip_counter += 1
+            i += skip_counter
+            
             # Compute tangent vector (direction of the pipe)
             tangent = end - start
             tangent /= np.linalg.norm(tangent)  # Normalize
