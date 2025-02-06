@@ -132,7 +132,6 @@ def listen_for_server_commands():
         except Exception as e:
             print(f"Error receiving command: {e}")
             break
-    listen_for_server_commands()
 
 # Start a separate thread for listening to the server
 command_listener = Thread(target=listen_for_server_commands, daemon=True)
