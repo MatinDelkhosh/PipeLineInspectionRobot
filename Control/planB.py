@@ -213,7 +213,7 @@ def Update_points(k=0.8, dt=1):
             points_3d.append(point)
             
             # Send the updated points_3d data to the server
-            with threading.lock():
+            with threading.Lock():
                 send_data(point, "points_3d")
 
             sleep(dt)  # 100ms delay for real-time update
@@ -254,7 +254,7 @@ try:
 
         center_offset, radius, output_frame = detect_strongest_circle(frame)
 
-        with threading.lock():
+        with threading.Lock():
             send_data(output_frame, "image")
 
         if motor_running: Drive_Motor(center_offset[0])
