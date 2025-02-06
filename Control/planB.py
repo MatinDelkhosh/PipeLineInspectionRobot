@@ -89,12 +89,12 @@ try:
 
         print('center:',center_offset[0]) 
 
-        leftspeed = 80 + center_offset[0]
-        rightspeed = 80 - center_offset[0]
+        leftspeed = 80 + center_offset[0]/2
+        rightspeed = 80 - center_offset[0]/2
 
         print(1,leftspeed,rightspeed)
 
-        '''if rightspeed < 0:
+        if rightspeed < 0:
             GPIO.output(MOTOR_RIGHT_IN1, GPIO.LOW)
             GPIO.output(MOTOR_RIGHT_IN2, GPIO.HIGH)
             GPIO.output(MOTOR_LEFT_IN1, GPIO.HIGH)
@@ -112,7 +112,7 @@ try:
             GPIO.output(MOTOR_RIGHT_IN1, GPIO.HIGH)
             GPIO.output(MOTOR_RIGHT_IN2, GPIO.LOW)
             GPIO.output(MOTOR_LEFT_IN1, GPIO.HIGH)
-            GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)'''
+            GPIO.output(MOTOR_LEFT_IN2, GPIO.LOW)
 
 
         leftspeed = min(leftspeed,100)
@@ -124,7 +124,7 @@ try:
 
         pwm1.ChangeDutyCycle(leftspeed)  # Set speed to 50%
         pwm2.ChangeDutyCycle(rightspeed)
-        sleep(0.01)
+        sleep(0.1)
 
 finally:
     pwm1.stop()
