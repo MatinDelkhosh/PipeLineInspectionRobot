@@ -223,7 +223,7 @@ def Update_points(k=0.8, dt=0.1):
             send_data(point, "points_3d")
 
             sleep(dt)  # 100ms delay for real-time update
-            print(f'\rpoints calcd {acc_x:.2f}, {x*100:.2f}, {y*100:.2f}, {theta:.1f}, {w_enc}',end='')
+            print(f'\rpoints calcd {acc_x:.2f}, {x*100:.2f}, {y*100:.2f}, {theta:.1f}',end='')
         
         except Exception as e:
             print(f"Error in Update_points: {e}")

@@ -104,6 +104,7 @@ def receive_data():
 
             try: data_type, data_content = pickle.loads(frame_data)  # Unpack the data
             except:
+                data = b""
                 print('error unpickling')
                 continue
 
@@ -115,6 +116,7 @@ def receive_data():
                 imgtk = ImageTk.PhotoImage(image=img)
                 video_label.imgtk = imgtk
                 video_label.configure(image=imgtk)
+                data = b""
 
             elif data_type == 'points_3d':
                 try:
@@ -123,6 +125,7 @@ def receive_data():
                         points_3d.append(data_content)
                         update_3d_plot()
                     else: pass
+                    data = b""
                 except: print("Incorrect data")
 
     except Exception as e:
