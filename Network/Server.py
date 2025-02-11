@@ -13,7 +13,7 @@ import numpy as np
 
 # Socket setup
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host_ip = '0.0.0.0'  # Listen on all interfaces
+host_ip = '192.168.171.250'  # Listen on all interfaces
 port = 9999
 server_socket.bind((host_ip, port))
 server_socket.listen(5)
@@ -42,7 +42,7 @@ video_label.pack(side=tk.LEFT)
 
 # Global variable to store the current frame
 current_frame = None
-points_3d = []
+points_3d = [(0,0,0)]
 
 # Function to save the current frame
 def save_image():
@@ -113,8 +113,13 @@ def receive_data():
                 video_label.configure(image=imgtk)
 
             elif data_type == 'points_3d':
-                points_3d.append(data_content)
-                update_3d_plot()
+                try:
+                    distance = np.sqrt((points_3d[-1][0]-data_content[0])**2 + (points_3d[-1][1]-data_content[1])**2)
+                    if distance > 0.5:
+                        points_3d.append(data_content)
+                        update_3d_plot()
+                    else: pass
+                except: print("Incorrect data")
 
     except Exception as e:
         print(f"Error: {e}")
@@ -149,12 +154,6 @@ def update_3d_plot():
         for i in range(len(points_3d) - 1):
             start = np.array(points_3d[i])
             end = np.array(points_3d[i+1])
-
-            for j,end in enumerate(points_3d[i:]):
-                distance = np.sqrt((start[0]-end[0])**2 + (start[1]-end[1])**2)
-                if distance > 0.1:
-                    break
-            i += j
             
             # Compute tangent vector (direction of the pipe)
             tangent = end - start
@@ -197,7 +196,6 @@ def update_3d_plot():
         ax.set_title("Pipe Profile with Defined Diameter")
         ax.legend()
         canvas.draw()
-        print('change canvas')
 
 # Start the Tkinter main loop
 root.mainloop()

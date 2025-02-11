@@ -197,6 +197,10 @@ def Update_points(k=0.8, dt=0.1):
             acc_x = kf_acc_x.update(acc_x_raw / 16384.0 * 9.78)
             acc_y = kf_acc_y.update(acc_y_raw / 16384.0 * 9.78)
 
+            if (acc_x**2 + acc_y**2)**.5 < 0.1:
+                acc_x = 0
+                acc_y = 0
+
             # Compute weight factors
             w_imu = abs(gyro_z) / (abs(gyro_z) + k) if abs(gyro_z) + k != 0 else 0.5
             w_enc = 1 - w_imu
@@ -214,7 +218,7 @@ def Update_points(k=0.8, dt=0.1):
             y = kf_y.update(y)
             theta = kf_theta.update(theta)
             point = (x,y,0)
-            points_3d.append(point)
+            #points_3d.append(point)
             
             # Send the updated points_3d data to the server
             send_data(point, "points_3d")
