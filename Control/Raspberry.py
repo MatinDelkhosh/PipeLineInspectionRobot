@@ -26,10 +26,12 @@ print('Connected!')
 picam2 = Picamera2()
 picam2.configure(picam2.create_preview_configuration(main={"format": 'XRGB8888', "size": (640, 480)}))
 picam2.start()
-
+n = 0
 #function to send data
 def send_data(data, data_type):
-        """Helper function to send data with a type identifier."""
+        global n
+        n+=1
+        print(f'\rsending data {n}')
         data_packet = pickle.dumps((data_type, data))
         message_size = struct.pack("L", len(data_packet))
 
