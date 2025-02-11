@@ -104,7 +104,6 @@ def receive_data():
 
             try: data_type, data_content = pickle.loads(frame_data)  # Unpack the data
             except:
-                data = b""
                 print('error unpickling')
                 continue
 
@@ -124,6 +123,7 @@ def receive_data():
                     if distance > 0.01:
                         points_3d.append(data_content)
                         update_3d_plot()
+                        print(f'\r{data_content}',end='')
                     else: pass
                     data = b""
                 except: print("Incorrect data")
