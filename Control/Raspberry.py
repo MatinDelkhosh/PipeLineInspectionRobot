@@ -34,7 +34,9 @@ def send_data(data, data_type):
         message_size = struct.pack("L", len(data_packet))
 
         #with threading.Lock():
-        try: client_socket.sendall(message_size + data_packet)
+        try:
+            client_socket.sendall(message_size + data_packet)
+            sleep(0.01)
         except: print('\nconnection lost', end='')
 
 def detect_strongest_circle(frame):
