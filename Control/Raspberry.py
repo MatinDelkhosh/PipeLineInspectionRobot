@@ -33,9 +33,9 @@ def send_data(data, data_type):
         data_packet = pickle.dumps((data_type, data))
         message_size = struct.pack("L", len(data_packet))
 
-        with threading.Lock():
-            try: client_socket.sendall(message_size + data_packet)
-            except: print('\nconnection lost', end='')
+        #with threading.Lock():
+        try: client_socket.sendall(message_size + data_packet)
+        except: print('\nconnection lost', end='')
 
 def detect_strongest_circle(frame):
     output_frame = frame.copy()
