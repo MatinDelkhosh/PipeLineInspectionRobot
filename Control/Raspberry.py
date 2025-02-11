@@ -145,8 +145,6 @@ class KalmanFilter:
 # MPU6050 Registers
 MPU6050_ADDR = 0x68
 PWR_MGMT_1 = 0x6B
-ACCEL_XOUT_H = 0x3B
-GYRO_XOUT_H = 0x43
 
 bus = smbus2.SMBus(1)
 # Wake up MPU6050
@@ -261,7 +259,7 @@ def run_inference(image, location):
                 text=True)
             print(f'problem {result.stdout} at location {location}')
     except:
-        print("Error running Neural Net")
+        print("\nError running Neural Net")
 
     
 # Save the captured image as a temporary file
