@@ -38,9 +38,9 @@ def send_data(data, data_type):
             except: print('\rconnection lost', end='')
 
 def detect_strongest_circle(frame):
-    frame = frame.copy()
+    output_frame = frame.copy()
     # Convert to grayscale
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(output_frame, cv2.COLOR_BGR2GRAY)
 
     # Enhance contrast
     gray = cv2.equalizeHist(gray)
@@ -66,19 +66,19 @@ def detect_strongest_circle(frame):
         x, y, r = strongest_circle
 
         # Get frame dimensions
-        height, width = frame.shape[:2]
+        height, width = output_frame.shape[:2]
         center_x, center_y = width // 2, height // 2
 
         # Calculate position relative to center
         relative_x = x - center_x
         relative_y = y - center_y
 
-        frame = cv2.circle(frame, (x, y), r, (0, 255, 0), 4)
-        frame = cv2.circle(frame, (x, y), 2, (0, 0, 255), 3)
+        output_frame = cv2.circle(output_frame, (x, y), r, (0, 255, 0), 4)
+        output_frame = cv2.circle(output_frame, (x, y), 2, (0, 0, 255), 3)
 
-        return (relative_x, relative_y), r, frame
+        return (relative_x, relative_y), r, output_frame
 
-    return (0,0), 0, frame
+    return (0,0), 0, output_frame
 
 # Pin setup
 MOTOR_LEFT_ENA = 24
