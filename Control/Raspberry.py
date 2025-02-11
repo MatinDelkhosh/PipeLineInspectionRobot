@@ -175,7 +175,7 @@ def read_encoder(enc):
     return distance
 
 # Calculate movement
-points_3d = []
+points_3d = [(0,0,0)]
 
 def Update_points(k=0.8, dt=0.1):
     global points_3d

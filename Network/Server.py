@@ -101,8 +101,10 @@ def receive_data():
             # Extract the frame data and the data type identifier
             frame_data = data[:msg_size]
             data = data[msg_size:]
-            data_type, data_content = pickle.loads(frame_data)  # Unpack the data
             
+            try: data_type, data_content = pickle.loads(frame_data)  # Unpack the data
+            except: continue
+
             if data_type == 'image':
                 frame = data_content
                 current_frame = frame
