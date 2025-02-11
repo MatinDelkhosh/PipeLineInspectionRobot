@@ -121,7 +121,7 @@ def receive_data():
             elif data_type == 'points_3d':
                 try:
                     distance = np.sqrt((points_3d[-1][0]-data_content[0])**2 + (points_3d[-1][1]-data_content[1])**2)
-                    if distance > 0.5:
+                    if distance > 0.01:
                         points_3d.append(data_content)
                         update_3d_plot()
                     else: pass

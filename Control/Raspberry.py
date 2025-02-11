@@ -285,7 +285,6 @@ try:
 
         center_offset, radius, output_frame = detect_strongest_circle(frame)
         
-        image = cv2.resize(frame.copy(),(214,214))
         send_data(output_frame, "image")
 
         if motor_running: Drive_Motor(center_offset[0])
