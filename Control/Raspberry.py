@@ -29,7 +29,6 @@ picam2.start()
 
 #function to send data
 def send_data(data, data_type):
-        print(f'\rsending data {data}')
         data_packet = pickle.dumps((data_type, data))
         message_size = struct.pack("L", len(data_packet))
 
@@ -285,7 +284,8 @@ try:
         frame = picam2.capture_array()
 
         center_offset, radius, output_frame = detect_strongest_circle(frame)
-
+        
+        image = cv2.resize(frame.copy(),(214,214))
         send_data(output_frame, "image")
 
         if motor_running: Drive_Motor(center_offset[0])
